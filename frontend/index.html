@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>AI Face Detection Challenge</title>
+    <title>AI Face Detection Pretest</title>
     <style>
         * {
             box-sizing: border-box;
@@ -30,7 +30,7 @@
             padding: 1rem 2rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             z-index: 1000;
         }
@@ -41,101 +41,88 @@
             color: #fff;
         }
 
-        .nav-tabs {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .tab-btn {
-            padding: 0.6rem 1.2rem;
-            background: transparent;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            color: rgba(255, 255, 255, 0.7);
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .tab-btn.active {
-            border-color: #fff;
-            color: #fff;
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .tab-btn:hover:not(.active) {
-            border-color: rgba(255, 255, 255, 0.6);
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        /* Split screen layout */
-        .split-container {
+        /* Landing Page */
+        .landing-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
+            background: linear-gradient(180deg, #3498db 0%, #9b59b6 100%);
             display: flex;
-        }
-
-        .split-side {
-            flex: 1;
-            position: relative;
-            display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            z-index: 300;
         }
 
-        .split-side.left {
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-        }
-
-        .split-side.right {
-            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
-        }
-
-        .split-side:hover {
-            flex: 1.1;
-        }
-
-        .split-side:hover .side-content {
-            transform: scale(1.05);
-        }
-
-        .side-content {
+        .landing-content {
             text-align: center;
-            transition: transform 0.3s ease;
+            max-width: 600px;
             padding: 2rem;
         }
 
-        .side-icon {
-            font-size: 6rem;
-            margin-bottom: 1rem;
-            opacity: 0.9;
-        }
-
-        .side-title {
-            font-size: 3rem;
+        .landing-title {
+            font-size: 4rem;
             font-weight: bold;
-            margin-bottom: 0.5rem;
+            margin-bottom: 1rem;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
-        .side-subtitle {
+        .landing-subtitle {
             font-size: 1.5rem;
-            opacity: 0.8;
+            margin-bottom: 2rem;
+            opacity: 0.9;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
         }
 
-        /* Center content overlay */
+        .landing-description {
+            font-size: 1.2rem;
+            margin-bottom: 3rem;
+            line-height: 1.6;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .start-btn {
+            padding: 1.5rem 4rem;
+            font-size: 2rem;
+            font-weight: bold;
+            background: #2ecc71;
+            border: none;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .start-btn:hover {
+            background: #27ae60;
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Comparison Mode Overlay */
+        .comparison-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(180deg, #3498db 0%, #9b59b6 100%);
+        }
+
         .center-overlay {
             position: fixed;
-            top: 50%;
+            top: 15%;
             left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 100;
+            transform: translateX(-50%);
+            z-index: 200;
             text-align: center;
             pointer-events: none;
         }
@@ -160,47 +147,9 @@
             opacity: 0.8;
         }
 
-        .image-container {
-            position: relative;
-            margin-bottom: 2rem;
-        }
-
-        .main-image {
-            width: 300px;
-            height: 300px;
-            border-radius: 20px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            object-fit: cover;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-            transition: transform 0.3s ease;
-        }
-
-        .main-image:hover {
-            transform: scale(1.02);
-        }
-
-        /* Comparison mode adjustments */
-        .comparison-mode .split-container {
-            display: none;
-        }
-
-        .comparison-mode .comparison-overlay {
-            display: flex !important;
-        }
-
-        .comparison-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: linear-gradient(45deg, #3498db 0%, #3498db 49%, #9b59b6 51%, #9b59b6 100%);
-        }
-
         .comparison-content {
             position: absolute;
-            top: 60%;
+            top: 55%;
             left: 50%;
             transform: translate(-50%, -50%);
             display: flex;
@@ -328,13 +277,13 @@
             height: 100%;
             object-fit: cover;
             border-radius: 8px;
+            transform: scaleX(-1); /* Mirror the video feed */
         }
 
         .webcam-feed.hidden {
             display: none;
         }
 
-        /* Webcam toggle button */
         .webcam-toggle {
             position: fixed;
             bottom: 180px;
@@ -366,6 +315,11 @@
             border-radius: 15px;
             z-index: 50;
             border: 1px solid rgba(255, 255, 255, 0.2);
+            display: none;
+        }
+
+        .instructions.show {
+            display: block;
         }
 
         /* Feedback animations */
@@ -393,35 +347,29 @@
             background: #e74c3c;
         }
 
-        /* Fix comparison mode question positioning */
-        .comparison-overlay .center-overlay {
-            top: 15% !important;
-            pointer-events: none;
-            z-index: 200;
-        }
-
         /* Mobile responsiveness */
         @media (max-width: 768px) {
-            .split-container {
-                flex-direction: column;
+            .landing-title {
+                font-size: 2.5rem;
             }
             
-            .side-title {
-                font-size: 2rem;
-            }
-            
-            .side-subtitle {
+            .landing-subtitle {
                 font-size: 1.2rem;
             }
             
-            .main-image {
-                width: 250px;
-                height: 250px;
+            .landing-description {
+                font-size: 1rem;
+            }
+            
+            .start-btn {
+                padding: 1.2rem 3rem;
+                font-size: 1.5rem;
             }
             
             .comparison-content {
                 flex-direction: column;
                 gap: 2rem;
+                top: 60%;
             }
             
             .comparison-image {
@@ -447,41 +395,18 @@
 </head>
 <body>
     <header>
-        <div class="logo">🎉 AI Face Detection Workshop</div>
-        <div class="nav-tabs">
-            <button class="tab-btn active" data-mode="single">Single Image</button>
-            <button class="tab-btn" data-mode="comparison">Side by Side</button>
-        </div>
+        <div class="logo">🎉 AI Face Detection Pretest</div>
     </header>
 
-    <!-- Single Image Mode - Split Screen -->
-    <div class="split-container" id="split-container">
-        <div class="split-side left" id="ai-side">
-            <div class="side-content">
-                <div class="side-icon">🤖</div>
-                <div class="side-title">AI</div>
-                <div class="side-subtitle">Generated</div>
+    <!-- Landing Page -->
+    <div class="landing-overlay" id="landing-overlay">
+        <div class="landing-content">
+            <div class="landing-title">🤖 AI Face Detection</div>
+            <div class="landing-subtitle">Can you tell real from artificial?</div>
+            <div class="landing-description">
+                Welcome to the AI Face Detection Pretest! You'll be shown pairs of face images - one real photograph and one AI-generated. Your task is to identify which face belongs to a real person. Test your ability to spot the difference between human and artificial faces.
             </div>
-        </div>
-        
-        <div class="split-side right" id="real-side">
-            <div class="side-content">
-                <div class="side-icon">👤</div>
-                <div class="side-title">REAL</div>
-                <div class="side-subtitle">Person</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Center overlay for question and image -->
-    <div class="center-overlay" id="center-overlay">
-        <div class="question-display">
-            <div class="question-text" id="question-text">Is this face real or AI-generated?</div>
-            <div class="progress-text" id="progress">Image 1 of 10</div>
-        </div>
-        
-        <div class="image-container">
-            <img class="main-image" id="face" src="assets/faces/1_rwm003.jpg" alt="Face">
+            <button class="start-btn" id="start-btn">🚀 Start Pretest</button>
         </div>
     </div>
 
@@ -510,24 +435,24 @@
     <!-- Results Screen -->
     <div class="results-overlay" id="results">
         <div class="results-content">
-            <div class="results-title">🎯 Challenge Complete!</div>
+            <div class="results-title">🎯 Pretest Complete!</div>
             <div class="score-display" id="score"></div>
             <div class="breakdown-display" id="breakdown"></div>
-            <button class="restart-btn" id="restart-btn">🔄 Start Over</button>
+            <button class="restart-btn" id="restart-btn">🔄 Try Again</button>
         </div>
     </div>
 
-    <!-- Webcam feed - visible in corner -->
-    <div class="webcam-feed" id="webcam-container">
+    <!-- Webcam feed - visible in corner during game -->
+    <div class="webcam-feed hidden" id="webcam-container">
         <canvas id="webcam-view" width="400" height="300"></canvas>
     </div>
 
     <!-- Webcam toggle button -->
-    <button class="webcam-toggle" id="webcam-toggle">📹 Hide Camera</button>
+    <button class="webcam-toggle" id="webcam-toggle" style="display: none;">📹 Hide Camera</button>
 
     <!-- Instructions -->
-    <div class="instructions">
-        Click sides • Arrow keys • Raise left/right hand to vote
+    <div class="instructions" id="instructions">
+        Click images • Arrow keys • Raise left/right hand to vote
     </div>
 
     <!-- Feedback flash overlay -->
@@ -545,20 +470,799 @@
     <script crossorigin="anonymous" src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3.1620248257/drawing_utils.js"></script>
     <script crossorigin="anonymous" src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.js"></script>
 
-    <!-- Game Scripts -->
-    <script src="js/gameState.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="js/imageLoader.js"></script>
-    <script src="js/feedback.js"></script>
-    <script src="js/webcam.js"></script>
-    <script src="js/singleMode.js"></script>
-    <script src="js/comparisonMode.js"></script>
-    <script src="js/results.js"></script>
-    <script src="js/main.js"></script>
-
     <script>
-        // Webcam toggle functionality
+        // Global game state management
+        const GameState = {
+            allImages: [],
+            currentImages: [],
+            currentIndex: 0,
+            results: [],
+            gameStartTime: new Date(),
+            currentMode: 'comparison',
+            questionsPerGame: 10,
+            
+            // DOM element references
+            elements: {
+                landingOverlay: null,
+                startBtn: null,
+                progressComparison: null,
+                comparisonOverlay: null,
+                resultsOverlay: null,
+                scoreDiv: null,
+                breakdownDiv: null,
+                optionA: null,
+                optionB: null,
+                imageA: null,
+                imageB: null,
+                restartBtn: null,
+                feedbackFlash: null,
+                webcamContainer: null,
+                webcamToggle: null,
+                instructions: null
+            },
+            
+            // Initialize DOM references
+            initElements() {
+                this.elements.landingOverlay = document.getElementById("landing-overlay");
+                this.elements.startBtn = document.getElementById("start-btn");
+                this.elements.progressComparison = document.getElementById("progress-comparison");
+                this.elements.comparisonOverlay = document.getElementById("comparison-overlay");
+                this.elements.resultsOverlay = document.getElementById("results");
+                this.elements.scoreDiv = document.getElementById("score");
+                this.elements.breakdownDiv = document.getElementById("breakdown");
+                this.elements.optionA = document.getElementById("option-a");
+                this.elements.optionB = document.getElementById("option-b");
+                this.elements.imageA = document.getElementById("image-a");
+                this.elements.imageB = document.getElementById("image-b");
+                this.elements.restartBtn = document.getElementById("restart-btn");
+                this.elements.feedbackFlash = document.getElementById("feedback-flash");
+                this.elements.webcamContainer = document.getElementById("webcam-container");
+                this.elements.webcamToggle = document.getElementById("webcam-toggle");
+                this.elements.instructions = document.getElementById("instructions");
+            },
+            
+            // Reset game state
+            reset() {
+                this.currentIndex = 0;
+                this.results = [];
+                this.gameStartTime = new Date();
+            },
+            
+            // Record a game result
+            recordResult(imageData, userGuess, isCorrect, pairData = null) {
+                const result = {
+                    imageNumber: this.currentIndex + 1,
+                    mode: this.currentMode,
+                    filename: `${pairData.realImage.file} vs ${pairData.aiImage.file}`,
+                    actualType: "Comparison",
+                    userGuess: userGuess,
+                    correct: isCorrect,
+                    timestamp: new Date().toISOString()
+                };
+                
+                if (pairData) {
+                    result.comparison = {
+                        realImage: pairData.realImage.file,
+                        aiImage: pairData.aiImage.file,
+                        realInA: pairData.realInA,
+                        userChose: userGuess
+                    };
+                }
+                
+                this.results.push(result);
+                console.log("Result recorded:", result);
+            }
+        };
+
+        // Utility functions and constants
+        const Utils = {
+            // Shuffle array function
+            shuffleArray(array) {
+                const shuffled = [...array];
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+                return shuffled;
+            },
+            
+            // Get random question from array
+            getRandomQuestion(questionArray) {
+                return questionArray[Math.floor(Math.random() * questionArray.length)];
+            },
+            
+            // Error handling for images
+            handleImageError(imgElement, imagePath) {
+                console.error("Failed to load image:", imagePath);
+                imgElement.src = "https://via.placeholder.com/250x250/333/fff?text=Image+Not+Found";
+            }
+        };
+
+        // Question sets for comparison mode
+        const Questions = {
+            comparison: [
+                "Which one do you think is Real?",
+                "Which face belongs to a real person?",
+                "Which image shows a real human?",
+                "Which one is the genuine photograph?",
+                "Pick the real person:"
+            ]
+        };
+
+        // Image database loading and management
+        const ImageLoader = {
+            // Load images based on filename patterns
+            loadDatabase() {
+                const imageFiles = [
+                    "1_rwm003", "2_swf014", "3_swm031", "4_rwf019", "5_swm023", "6_rwf001", 
+                    "7_rwm004", "8_rwm023", "9_swm042", "10_rwm027", "11_rwm046", "12_swf004",
+                    "13_rwm009", "14_swm047", "15_swm036", "16_rwf031", "17_swf049", "18_rwm032",
+                    "19_swm034", "20_rwm014", "21_swm010", "22_rwm012", "23_swf028", "24_rwm039",
+                    "25_swm013", "26_swf041", "27_rwf006", "28_rwf024", "29_swm018", "30_swm044"
+                ];
+                
+                const images = [];
+                
+                imageFiles.forEach((filename, index) => {
+                    try {
+                        const parts = filename.split('_');
+                        if (parts.length < 2) {
+                            console.warn(`Invalid filename format: ${filename}`);
+                            return;
+                        }
+                        
+                        const typeIndicator = parts[1][0];
+                        const isReal = typeIndicator === 'r';
+                        
+                        images.push({
+                            file: filename + ".jpg",
+                            fileAlt: filename + ".JPG",
+                            isAI: !isReal,
+                            index: index + 1,
+                            originalName: filename
+                        });
+                    } catch (error) {
+                        console.error(`Error parsing filename ${filename}:`, error);
+                    }
+                });
+                
+                console.log("Loaded", images.length, "images");
+                return images;
+            },
+            
+            // Create unique comparison pairs (no repeats)
+            createComparisonPairs(numPairs) {
+                const realImages = GameState.allImages.filter(img => !img.isAI);
+                const aiImages = GameState.allImages.filter(img => img.isAI);
+                
+                console.log("Available real images:", realImages.length);
+                console.log("Available AI images:", aiImages.length);
+                
+                if (realImages.length === 0 || aiImages.length === 0) {
+                    console.error("Need both real and AI images for comparison mode");
+                    return [];
+                }
+                
+                const pairs = [];
+                const maxPairs = Math.min(numPairs, Math.min(realImages.length, aiImages.length));
+                
+                const shuffledReal = Utils.shuffleArray(realImages);
+                const shuffledAI = Utils.shuffleArray(aiImages);
+                
+                for (let i = 0; i < maxPairs; i++) {
+                    const realImage = shuffledReal[i % shuffledReal.length];
+                    const aiImage = shuffledAI[i % shuffledAI.length];
+                    const realInA = Math.random() < 0.5;
+                    
+                    pairs.push({
+                        realImage,
+                        aiImage,
+                        realInA,
+                        pairNumber: i + 1
+                    });
+                    
+                    console.log(`Pair ${i + 1}: ${realImage.originalName} (real) vs ${aiImage.originalName} (AI)`);
+                }
+                
+                return pairs;
+            },
+            
+            // Setup error handlers for image loading
+            setupErrorHandlers() {
+                GameState.elements.imageA.onerror = function() { 
+                    const currentPair = GameState.currentImages[GameState.currentIndex];
+                    if (currentPair && currentPair.realImage && currentPair.realImage.fileAlt && 
+                        this.src.includes(currentPair.realImage.originalName) && 
+                        !this.src.includes(currentPair.realImage.fileAlt)) {
+                        console.log("Trying alternative extension for image A");
+                        this.src = `assets/faces/${currentPair.realImage.fileAlt}`;
+                    } else if (currentPair && currentPair.aiImage && currentPair.aiImage.fileAlt && 
+                               this.src.includes(currentPair.aiImage.originalName) && 
+                               !this.src.includes(currentPair.aiImage.fileAlt)) {
+                        console.log("Trying alternative extension for image A");
+                        this.src = `assets/faces/${currentPair.aiImage.fileAlt}`;
+                    } else {
+                        Utils.handleImageError(this, this.src); 
+                    }
+                };
+
+                GameState.elements.imageB.onerror = function() { 
+                    const currentPair = GameState.currentImages[GameState.currentIndex];
+                    if (currentPair && currentPair.realImage && currentPair.realImage.fileAlt && 
+                        this.src.includes(currentPair.realImage.originalName) && 
+                        !this.src.includes(currentPair.realImage.fileAlt)) {
+                        console.log("Trying alternative extension for image B");
+                        this.src = `assets/faces/${currentPair.realImage.fileAlt}`;
+                    } else if (currentPair && currentPair.aiImage && currentPair.aiImage.fileAlt && 
+                               this.src.includes(currentPair.aiImage.originalName) && 
+                               !this.src.includes(currentPair.aiImage.fileAlt)) {
+                        console.log("Trying alternative extension for image B");
+                        this.src = `assets/faces/${currentPair.aiImage.fileAlt}`;
+                    } else {
+                        Utils.handleImageError(this, this.src); 
+                    }
+                };
+            }
+        };
+
+        // Visual feedback effects for user interactions
+        const Feedback = {
+            // Show feedback for comparison mode voting
+            showComparison(isCorrect, realInA, userChoseA) {
+                this.flashScreen(isCorrect);
+                
+                const realOption = realInA ? GameState.elements.optionA : GameState.elements.optionB;
+                const aiOption = realInA ? GameState.elements.optionB : GameState.elements.optionA;
+                const chosenOption = userChoseA ? GameState.elements.optionA : GameState.elements.optionB;
+                
+                GameState.elements.optionA.style.pointerEvents = 'none';
+                GameState.elements.optionB.style.pointerEvents = 'none';
+                
+                if (isCorrect) {
+                    realOption.querySelector('.comparison-image').style.border = '6px solid #2ecc71';
+                    realOption.querySelector('.comparison-image').style.boxShadow = '0 0 30px rgba(46, 204, 113, 0.8)';
+                    realOption.querySelector('.comparison-label').textContent = 'REAL ✓';
+                    realOption.querySelector('.comparison-label').style.background = 'rgba(46, 204, 113, 0.9)';
+                    
+                    aiOption.querySelector('.comparison-label').textContent = 'AI';
+                    aiOption.querySelector('.comparison-label').style.background = 'rgba(0, 0, 0, 0.5)';
+                } else {
+                    chosenOption.querySelector('.comparison-image').style.border = '6px solid #e74c3c';
+                    chosenOption.querySelector('.comparison-image').style.boxShadow = '0 0 30px rgba(231, 76, 60, 0.8)';
+                    chosenOption.querySelector('.comparison-label').textContent = 'AI ✗';
+                    chosenOption.querySelector('.comparison-label').style.background = 'rgba(231, 76, 60, 0.9)';
+                    
+                    realOption.querySelector('.comparison-image').style.border = '6px solid #2ecc71';
+                    realOption.querySelector('.comparison-image').style.boxShadow = '0 0 30px rgba(46, 204, 113, 0.8)';
+                    realOption.querySelector('.comparison-label').textContent = 'REAL ✓';
+                    realOption.querySelector('.comparison-label').style.background = 'rgba(46, 204, 113, 0.9)';
+                }
+            },
+            
+            // Flash the screen with feedback color
+            flashScreen(isCorrect) {
+                const flash = GameState.elements.feedbackFlash;
+                flash.className = `feedback-flash ${isCorrect ? 'correct' : 'incorrect'} show`;
+                
+                setTimeout(() => {
+                    flash.className = 'feedback-flash';
+                }, 500);
+            },
+            
+            // Reset comparison mode visual effects
+            resetComparison() {
+                GameState.elements.optionA.style.pointerEvents = 'auto';
+                GameState.elements.optionB.style.pointerEvents = 'auto';
+                
+                GameState.elements.optionA.querySelector('.comparison-image').style.border = '4px solid rgba(255, 255, 255, 0.5)';
+                GameState.elements.optionA.querySelector('.comparison-image').style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.5)';
+                GameState.elements.optionA.querySelector('.comparison-label').textContent = 'A';
+                GameState.elements.optionA.querySelector('.comparison-label').style.background = 'rgba(0, 0, 0, 0.7)';
+                
+                GameState.elements.optionB.querySelector('.comparison-image').style.border = '4px solid rgba(255, 255, 255, 0.5)';
+                GameState.elements.optionB.querySelector('.comparison-image').style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.5)';
+                GameState.elements.optionB.querySelector('.comparison-label').textContent = 'B';
+                GameState.elements.optionB.querySelector('.comparison-label').style.background = 'rgba(0, 0, 0, 0.7)';
+            }
+        };
+
+        // Side-by-side comparison mode game logic
+        const ComparisonMode = {
+            load() {
+                if (GameState.currentIndex >= GameState.currentImages.length) {
+                    console.error("No more pairs to load");
+                    return;
+                }
+                
+                Feedback.resetComparison();
+                
+                const currentPair = GameState.currentImages[GameState.currentIndex];
+                
+                if (currentPair.realInA) {
+                    GameState.elements.imageA.src = `assets/faces/${currentPair.realImage.file}`;
+                    GameState.elements.imageB.src = `assets/faces/${currentPair.aiImage.file}`;
+                } else {
+                    GameState.elements.imageA.src = `assets/faces/${currentPair.aiImage.file}`;
+                    GameState.elements.imageB.src = `assets/faces/${currentPair.realImage.file}`;
+                }
+                
+                const comparisonQuestionText = GameState.elements.comparisonOverlay.querySelector('.question-text');
+                if (comparisonQuestionText) {
+                    comparisonQuestionText.textContent = Utils.getRandomQuestion(Questions.comparison);
+                }
+                
+                if (GameState.elements.progressComparison) {
+                    const totalQuestions = GameState.currentImages.length;
+                    GameState.elements.progressComparison.textContent = `Image ${GameState.currentIndex + 1} of ${totalQuestions}`;
+                }
+                
+                console.log(`Round ${GameState.currentIndex + 1}: Real in ${currentPair.realInA ? 'A' : 'B'}`);
+                console.log(`Images: ${currentPair.realImage.originalName} vs ${currentPair.aiImage.originalName}`);
+            },
+            
+            vote(chooseA) {
+                console.log("Comparison mode vote received:", chooseA ? "A" : "B");
+                
+                const currentPair = GameState.currentImages[GameState.currentIndex];
+                const userChoseReal = (chooseA && currentPair.realInA) || (!chooseA && !currentPair.realInA);
+                
+                console.log("Real in A:", currentPair.realInA, "User chose A:", chooseA, "User chose real:", userChoseReal);
+                
+                const selectedImage = chooseA ? 
+                    (currentPair.realInA ? currentPair.realImage : currentPair.aiImage) :
+                    (currentPair.realInA ? currentPair.aiImage : currentPair.realImage);
+                
+                const actualChoice = chooseA ? 
+                    (currentPair.realInA ? "Real" : "AI") :
+                    (currentPair.realInA ? "AI" : "Real");
+                
+                Feedback.showComparison(userChoseReal, currentPair.realInA, chooseA);
+                GameState.recordResult(selectedImage, actualChoice, userChoseReal, currentPair);
+                
+                setTimeout(() => {
+                    Game.nextImage();
+                }, 2500);
+            }
+        };
+
+        // Results display and management
+        const Results = {
+            show() {
+                GameState.elements.comparisonOverlay.style.display = "none";
+                
+                const correctAnswers = GameState.results.filter(r => r.correct).length;
+                const totalQuestions = GameState.results.length;
+                const percentage = Math.round((correctAnswers / totalQuestions) * 100);
+                
+                GameState.elements.scoreDiv.innerHTML = `You got <strong>${correctAnswers} out of ${totalQuestions}</strong> correct (${percentage}%)`;
+                
+                this.createBreakdown();
+                GameState.elements.resultsOverlay.style.display = "block";
+            },
+            
+            createBreakdown() {
+                let breakdown = "";
+                GameState.results.forEach(result => {
+                    const icon = result.correct ? "✅" : "❌";
+                    const color = result.correct ? "#2ecc71" : "#e74c3c";
+                    breakdown += `<div style="margin: 0.5rem 0; color: ${color}; font-size: 1.1rem; padding: 0.5rem; border-radius: 8px; background: rgba(255,255,255,0.1);">
+                        ${icon} #${result.imageNumber}: ${result.actualType} (you chose ${result.userGuess})
+                    </div>`;
+                });
+                GameState.elements.breakdownDiv.innerHTML = breakdown;
+            },
+            
+            hide() {
+                GameState.elements.resultsOverlay.style.display = "none";
+                GameState.elements.comparisonOverlay.style.display = "block";
+            }
+        };
+
+        // Webcam and hand gesture detection module with MediaPipe
+        const Webcam = {
+            video: null,
+            canvas: null,
+            ctx: null,
+            hands: null,
+            isSetup: false,
+            lastGesture: 0,
+            
+            settings: {
+                GESTURE_COOLDOWN: 2000,
+                POSITION_THRESHOLD: 0.3,
+                RAISE_THRESHOLD: 0.15,
+            },
+            
+            async init() {
+                console.log("Initializing webcam and MediaPipe...");
+                
+                try {
+                    this.video = document.getElementById('webcam');
+                    this.canvas = document.getElementById('webcam-view');
+                    
+                    if (!this.video || !this.canvas) {
+                        console.log("Webcam elements not found, continuing without hand tracking");
+                        return;
+                    }
+                    
+                    this.ctx = this.canvas.getContext('2d');
+                    await this.waitForMediaPipe();
+                    await this.setupCamera();
+                    await this.setupHandDetection();
+                    this.startRenderLoop();
+                    
+                    this.updateStatus("✅ Hand tracking ready! Raise left/right hand to vote", true);
+                    this.isSetup = true;
+                    
+                    console.log("Webcam and hand tracking initialized successfully!");
+                    
+                } catch (error) {
+                    console.error("Failed to initialize webcam:", error);
+                    this.updateStatus("❌ Camera not available. Use clicks/keys to vote.", false);
+                }
+            },
+            
+            async waitForMediaPipe() {
+                return new Promise((resolve, reject) => {
+                    let attempts = 0;
+                    const maxAttempts = 50;
+                    
+                    const checkMediaPipe = () => {
+                        attempts++;
+                        if (typeof Hands !== 'undefined' && typeof drawConnectors !== 'undefined') {
+                            console.log("MediaPipe libraries loaded");
+                            resolve();
+                        } else if (attempts >= maxAttempts) {
+                            reject(new Error("MediaPipe failed to load after 5 seconds"));
+                        } else {
+                            setTimeout(checkMediaPipe, 100);
+                        }
+                    };
+                    
+                    checkMediaPipe();
+                });
+            },
+            
+            async setupCamera() {
+                console.log("Setting up camera...");
+                
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        width: 640, 
+                        height: 480,
+                        facingMode: 'user'
+                    } 
+                });
+                
+                this.video.srcObject = stream;
+                
+                return new Promise((resolve) => {
+                    this.video.onloadedmetadata = async () => {
+                        await this.video.play();
+                        console.log("Camera ready and playing");
+                        resolve(this.video);
+                    };
+                });
+            },
+            
+            async setupHandDetection() {
+                this.hands = new Hands({
+                    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+                });
+                
+                this.hands.setOptions({
+                    maxNumHands: 2,
+                    modelComplexity: 1,
+                    minDetectionConfidence: 0.7,
+                    minTrackingConfidence: 0.5,
+                });
+                
+                this.hands.onResults((results) => this.onHandResults(results));
+                console.log("MediaPipe Hands configured");
+            },
+            
+            onHandResults(results) {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.ctx.drawImage(results.image, 0, 0, this.canvas.width, this.canvas.height);
+                
+                // Draw hand region overlays
+                this.drawHandRegionOverlays();
+                
+                if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                    for (const landmarks of results.multiHandLandmarks) {
+                        drawConnectors(this.ctx, landmarks, HAND_CONNECTIONS, {color: '#00FF00', lineWidth: 2});
+                        drawLandmarks(this.ctx, landmarks, {color: '#FF0000', lineWidth: 1});
+                    }
+                    
+                    this.detectVotingGesture(results.multiHandLandmarks, results.multiHandedness);
+                }
+            },
+            
+            // Draw overlay regions showing where to place hands
+            drawHandRegionOverlays() {
+                const width = this.canvas.width;
+                const height = this.canvas.height;
+                const threshold = this.settings.POSITION_THRESHOLD; // 0.3
+                
+                // Left region (for Option B - purple)
+                const leftRegionWidth = threshold * width;
+                this.ctx.fillStyle = 'rgba(155, 89, 182, 0.2)'; // Purple with transparency
+                this.ctx.fillRect(0, 0, leftRegionWidth, height);
+                
+                // Right region (for Option A - blue)  
+                const rightRegionStart = (1 - threshold) * width;
+                const rightRegionWidth = threshold * width;
+                this.ctx.fillStyle = 'rgba(52, 152, 219, 0.2)'; // Blue with transparency
+                this.ctx.fillRect(rightRegionStart, 0, rightRegionWidth, height);
+                
+                // Draw border lines
+                this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+                this.ctx.lineWidth = 2;
+                this.ctx.setLineDash([5, 5]); // Dashed line
+                
+                // Left border
+                this.ctx.beginPath();
+                this.ctx.moveTo(leftRegionWidth, 0);
+                this.ctx.lineTo(leftRegionWidth, height);
+                this.ctx.stroke();
+                
+                // Right border
+                this.ctx.beginPath();
+                this.ctx.moveTo(rightRegionStart, 0);
+                this.ctx.lineTo(rightRegionStart, height);
+                this.ctx.stroke();
+                
+                this.ctx.setLineDash([]); // Reset to solid line
+                
+                // Add text labels
+                this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                this.ctx.font = 'bold 16px Arial';
+                this.ctx.textAlign = 'center';
+                this.ctx.strokeStyle = '#000';
+                this.ctx.lineWidth = 2;
+                
+                // Left label (Option B)
+                const leftLabelX = leftRegionWidth / 2;
+                this.ctx.strokeText('B', leftLabelX, 30);
+                this.ctx.fillText('B', leftLabelX, 30);
+                
+                // Right label (Option A)  
+                const rightLabelX = rightRegionStart + (rightRegionWidth / 2);
+                this.ctx.strokeText('A', rightLabelX, 30);
+                this.ctx.fillText('A', rightLabelX, 30);
+                
+                // Instructions at bottom
+                this.ctx.font = '12px Arial';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                this.ctx.strokeStyle = '#000';
+                this.ctx.lineWidth = 1;
+                
+                const centerX = width / 2;
+                const instructionY = height - 20;
+                this.ctx.strokeText('Raise hand in colored region to vote', centerX, instructionY);
+                this.ctx.fillText('Raise hand in colored region to vote', centerX, instructionY);
+            },
+            
+            detectVotingGesture(handLandmarks, handedness) {
+                const now = performance.now();
+                
+                if (now - this.lastGesture < this.settings.GESTURE_COOLDOWN) {
+                    return;
+                }
+                
+                for (let i = 0; i < handLandmarks.length; i++) {
+                    const landmarks = handLandmarks[i];
+                    const handInfo = handedness[i];
+                    
+                    const wrist = landmarks[0];
+                    const middleTip = landmarks[12];
+                    const indexTip = landmarks[8];
+                    
+                    const isHandRaised = (middleTip.y < wrist.y - this.settings.RAISE_THRESHOLD) && 
+                                        (indexTip.y < wrist.y - this.settings.RAISE_THRESHOLD);
+                    
+                    if (isHandRaised) {
+                        const handX = wrist.x;
+                        const handLabel = handInfo.label;
+                        
+                        console.log(`${handLabel} hand raised at position ${handX.toFixed(2)}`);
+                        
+                        let voteDirection = null;
+                        
+                        if (handX < this.settings.POSITION_THRESHOLD) {
+                            voteDirection = 'LEFT_SIDE';
+                        } else if (handX > (1 - this.settings.POSITION_THRESHOLD)) {
+                            voteDirection = 'RIGHT_SIDE';
+                        }
+                        
+                        if (voteDirection) {
+                            console.log(`Vote detected: ${voteDirection} (${handLabel} hand)`);
+                            this.processVote(voteDirection, handX, handLabel);
+                            this.lastGesture = now;
+                        }
+                    }
+                }
+            },
+            
+            processVote(direction, handX, handLabel) {
+                console.log(`Processing vote: ${direction} (${handLabel} hand)`);
+                this.showVoteFeedback(direction, handX, handLabel);
+                
+                const chooseA = direction === 'RIGHT_SIDE';
+                console.log(`Comparison mode hand vote: ${chooseA ? 'A' : 'B'} (${handLabel} hand raised)`);
+                ComparisonMode.vote(chooseA);
+            },
+            
+            showVoteFeedback(direction, handX, handLabel) {
+                const color = direction === 'RIGHT_SIDE' ? '#3498db' : '#9b59b6';
+                const text = direction === 'RIGHT_SIDE' ? 'OPTION A!' : 'OPTION B!';
+                
+                this.ctx.fillStyle = color;
+                this.ctx.font = 'bold 28px Arial';
+                this.ctx.textAlign = 'center';
+                this.ctx.strokeStyle = '#000';
+                this.ctx.lineWidth = 3;
+                this.ctx.strokeText(text, handX * this.canvas.width, 60);
+                this.ctx.fillText(text, handX * this.canvas.width, 60);
+                
+                this.ctx.font = 'bold 16px Arial';
+                this.ctx.fillText(`${handLabel} Hand`, handX * this.canvas.width, 90);
+                
+                this.ctx.font = '14px Arial';
+                this.ctx.fillText('Wait 2 seconds...', handX * this.canvas.width, 110);
+            },
+            
+            startRenderLoop() {
+                const render = async () => {
+                    if (this.hands && this.video && this.video.readyState >= 2) {
+                        try {
+                            await this.hands.send({image: this.video});
+                        } catch (error) {
+                            console.error("Error processing frame:", error);
+                        }
+                    }
+                    requestAnimationFrame(render);
+                };
+                render();
+            },
+            
+            updateStatus(message, isReady) {
+                console.log("Hand tracking status:", message);
+                if (GameState.elements.instructions && isReady) {
+                    GameState.elements.instructions.textContent = 'Click images • Arrow keys • Raise left/right hand to vote';
+                }
+            },
+            
+            stop() {
+                if (this.video && this.video.srcObject) {
+                    const tracks = this.video.srcObject.getTracks();
+                    tracks.forEach(track => track.stop());
+                }
+            }
+        };
+
+        // Main game controller and initialization
+        const Game = {
+            async init() {
+                console.log("Initializing AI Face Detection Pretest...");
+                
+                GameState.initElements();
+                GameState.allImages = ImageLoader.loadDatabase();
+                
+                if (GameState.allImages.length === 0) {
+                    console.error("No images loaded! Check your file paths and names.");
+                    return;
+                }
+                
+                this.setupEventListeners();
+                ImageLoader.setupErrorHandlers();
+                
+                this.initWebcam();
+                
+                console.log("Game initialized successfully!");
+            },
+            
+            async initWebcam() {
+                try {
+                    await Webcam.init();
+                } catch (error) {
+                    console.log("Webcam initialization failed, continuing with button controls only");
+                }
+            },
+            
+            start() {
+                console.log("Starting pretest...");
+                
+                // Hide landing page and show game
+                GameState.elements.landingOverlay.style.display = "none";
+                GameState.elements.comparisonOverlay.style.display = "block";
+                GameState.elements.instructions.classList.add("show");
+                GameState.elements.webcamContainer.classList.remove("hidden");
+                GameState.elements.webcamToggle.style.display = "block";
+                
+                GameState.reset();
+                GameState.currentImages = ImageLoader.createComparisonPairs(GameState.questionsPerGame);
+                console.log("Created", GameState.currentImages.length, "unique pairs");
+                ComparisonMode.load();
+            },
+            
+            nextImage() {
+                GameState.currentIndex++;
+                
+                if (GameState.currentIndex >= GameState.currentImages.length) {
+                    Results.show();
+                } else {
+                    ComparisonMode.load();
+                }
+            },
+            
+            restart() {
+                Results.hide();
+                Feedback.resetComparison();
+                
+                // Reset to landing page
+                GameState.elements.comparisonOverlay.style.display = "none";
+                GameState.elements.resultsOverlay.style.display = "none";
+                GameState.elements.landingOverlay.style.display = "flex";
+                GameState.elements.instructions.classList.remove("show");
+                GameState.elements.webcamContainer.classList.add("hidden");
+                GameState.elements.webcamToggle.style.display = "none";
+            },
+            
+            setupEventListeners() {
+                console.log("Setting up event listeners...");
+                
+                // Start button
+                GameState.elements.startBtn.addEventListener("click", () => this.start());
+                
+                // Comparison mode voting
+                GameState.elements.optionA.addEventListener("click", () => {
+                    console.log("Option A clicked!");
+                    ComparisonMode.vote(true);
+                });
+                
+                GameState.elements.optionB.addEventListener("click", () => {
+                    console.log("Option B clicked!");
+                    ComparisonMode.vote(false);
+                });
+                
+                // Restart button
+                GameState.elements.restartBtn.addEventListener("click", () => this.restart());
+                
+                // Keyboard handlers
+                document.body.addEventListener("keydown", e => {
+                    console.log("Key pressed:", e.key);
+                    
+                    // Only respond to keys during active game
+                    if (GameState.elements.comparisonOverlay.style.display !== "block") return;
+                    if (GameState.currentIndex >= GameState.currentImages.length) return;
+                    
+                    switch(e.key) {
+                        case "ArrowLeft":
+                        case "a":
+                        case "A":
+                            console.log("Left/A - voting for option A");
+                            ComparisonMode.vote(true);
+                            break;
+                        case "ArrowRight":
+                        case "b":
+                        case "B":
+                            console.log("Right/B - voting for option B");
+                            ComparisonMode.vote(false);
+                            break;
+                    }
+                });
+                
+                console.log("Event listeners setup complete!");
+            }
+        };
+
+        // Initialize the game when DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {
+            Game.init();
+            
+            // Webcam toggle functionality
             const webcamToggle = document.getElementById('webcam-toggle');
             const webcamContainer = document.getElementById('webcam-container');
             
