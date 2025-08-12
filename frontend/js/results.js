@@ -2,12 +2,8 @@
 const Results = {
     // Show the results screen
     show() {
-        // Hide game interfaces
-        GameState.elements.splitContainer.style.display = "none";
-        GameState.elements.centerOverlay.style.display = "none";
         GameState.elements.comparisonOverlay.style.display = "none";
         
-        // Calculate score
         const correctAnswers = GameState.results.filter(r => r.correct).length;
         const totalQuestions = GameState.results.length;
         const percentage = Math.round((correctAnswers / totalQuestions) * 100);
@@ -17,8 +13,8 @@ const Results = {
         if (resultsTitle) {
             if (GameState.currentMode === 'demo') {
                 resultsTitle.textContent = '🐕 Demo Complete!';
-            } else if (GameState.currentMode === 'training') {
-                resultsTitle.textContent = '🎓 Training Complete!';
+            } else if (GameState.currentMode === 'phase2') {
+                resultsTitle.textContent = '🎯 Phase II Complete!';
             } else {
                 resultsTitle.textContent = '🎯 Pretest Complete!';
             }
@@ -26,23 +22,23 @@ const Results = {
         
         GameState.elements.scoreDiv.innerHTML = `You got <strong>${correctAnswers} out of ${totalQuestions}</strong> correct (${percentage}%)`;
         
-        // Create breakdown
         this.createBreakdown();
         
         // Show/hide appropriate buttons
         const homeBtn = GameState.elements.homeBtn;
-        const restartBtn = GameState.elements.restartBtn;
+        const trainingBtn = GameState.elements.trainingBtn;
         
         if (GameState.currentMode === 'demo') {
             homeBtn.style.display = 'block';
-            restartBtn.style.display = 'none';
-        } else if (GameState.currentMode === 'training') {
+            trainingBtn.style.display = 'none';
+        } else if (GameState.currentMode === 'phase2') {
             homeBtn.style.display = 'block';
-            restartBtn.style.display = 'none';
+            trainingBtn.style.display = 'none';
         } else {
+            // Pretest mode
             homeBtn.style.display = 'block';
-            restartBtn.style.display = 'block';
-            restartBtn.textContent = '🎓 Next: Training'; // Make sure button text is correct
+            trainingBtn.style.display = 'block';
+            trainingBtn.textContent = '🎓 Next: Training';
         }
         
         GameState.elements.resultsOverlay.style.display = "block";
@@ -69,16 +65,8 @@ const Results = {
         GameState.elements.breakdownDiv.innerHTML = breakdown;
     },
     
-    // Hide results and return to game
     hide() {
         GameState.elements.resultsOverlay.style.display = "none";
-        
-        // Show appropriate game mode
-        if (GameState.currentMode === 'single') {
-            GameState.elements.splitContainer.style.display = "flex";
-            GameState.elements.centerOverlay.style.display = "block";
-        } else {
-            GameState.elements.comparisonOverlay.style.display = "flex";
-        }
+        GameState.elements.comparisonOverlay.style.display = "block";
     }
 };

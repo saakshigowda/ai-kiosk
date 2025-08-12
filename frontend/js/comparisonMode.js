@@ -1,4 +1,4 @@
-// Side-by-side comparison mode game logic (supports both face comparison and demo mode)
+// Side-by-side comparison mode game logic
 const ComparisonMode = {
     // Load images for comparison mode
     load() {
@@ -7,13 +7,7 @@ const ComparisonMode = {
             return;
         }
         
-        // Reset visual effects from previous round
         Feedback.resetComparison();
-        
-        // Show comparison mode interface
-        GameState.elements.splitContainer.style.display = "none";
-        GameState.elements.centerOverlay.style.display = "none";
-        GameState.elements.comparisonOverlay.style.display = "block";
         
         const currentPair = GameState.currentImages[GameState.currentIndex];
         
@@ -31,22 +25,22 @@ const ComparisonMode = {
             
             console.log(`Demo Round ${GameState.currentIndex + 1}: Dog in ${currentPair.dogInA ? 'A' : 'B'}`);
             console.log(`Images: ${currentPair.dogImage.originalName} vs ${currentPair.catImage.originalName}`);
-        } else if (GameState.currentMode === 'training') {
-    // Training mode: Load real vs AI training images
-    const assetPath = 'assets/training/';
-    
-    if (currentPair.realInA) {
-        GameState.elements.imageA.src = `${assetPath}${currentPair.realImage.file}`;
-        GameState.elements.imageB.src = `${assetPath}${currentPair.aiImage.file}`;
-    } else {
-        GameState.elements.imageA.src = `${assetPath}${currentPair.aiImage.file}`;
-        GameState.elements.imageB.src = `${assetPath}${currentPair.realImage.file}`;
-    }
-    
-    console.log(`Training Round ${GameState.currentIndex + 1}: Real in ${currentPair.realInA ? 'A' : 'B'}`);
-    console.log(`Images: ${currentPair.realImage.originalName} vs ${currentPair.aiImage.originalName}`);
-} else {
-            // Face comparison mode: Load real vs AI images
+        } else if (GameState.currentMode === 'phase2') {
+            // Phase II mode: Load real vs AI images from SetB
+            const assetPath = 'assets/SetB/';
+            
+            if (currentPair.realInA) {
+                GameState.elements.imageA.src = `${assetPath}${currentPair.realImage.file}`;
+                GameState.elements.imageB.src = `${assetPath}${currentPair.aiImage.file}`;
+            } else {
+                GameState.elements.imageA.src = `${assetPath}${currentPair.aiImage.file}`;
+                GameState.elements.imageB.src = `${assetPath}${currentPair.realImage.file}`;
+            }
+            
+            console.log(`Phase II Round ${GameState.currentIndex + 1}: Real in ${currentPair.realInA ? 'A' : 'B'}`);
+            console.log(`Images: ${currentPair.realImage.originalName} vs ${currentPair.aiImage.originalName}`);
+        } else {
+            // Pretest mode: Load real vs AI images
             const assetPath = 'assets/faces/';
             
             if (currentPair.realInA) {
@@ -57,18 +51,18 @@ const ComparisonMode = {
                 GameState.elements.imageB.src = `${assetPath}${currentPair.realImage.file}`;
             }
             
-            console.log(`Round ${GameState.currentIndex + 1}: Real in ${currentPair.realInA ? 'A' : 'B'}`);
+            console.log(`Pretest Round ${GameState.currentIndex + 1}: Real in ${currentPair.realInA ? 'A' : 'B'}`);
             console.log(`Images: ${currentPair.realImage.originalName} vs ${currentPair.aiImage.originalName}`);
         }
         
-        // Update question text in the comparison overlay
+        // Update question text
         const comparisonQuestionText = GameState.elements.comparisonOverlay.querySelector('.question-text');
         if (comparisonQuestionText) {
-            const questionSet = GameState.currentMode === 'demo' ? Questions.demo :GameState.currentMode === 'training' ? Questions.comparison : Questions.comparison;
+            const questionSet = GameState.currentMode === 'demo' ? Questions.demo : Questions.comparison;
             comparisonQuestionText.textContent = Utils.getRandomQuestion(questionSet);
         }
         
-        // Update progress in comparison mode
+        // Update progress
         if (GameState.elements.progressComparison) {
             const totalQuestions = GameState.currentImages.length;
             GameState.elements.progressComparison.textContent = `Image ${GameState.currentIndex + 1} of ${totalQuestions}`;
@@ -86,27 +80,23 @@ const ComparisonMode = {
             // Demo mode: User is correct if they choose the dog
             userChoseCorrect = (chooseA && currentPair.dogInA) || (!chooseA && !currentPair.dogInA);
             
-            // For recording purposes, determine what they actually selected
             selectedImage = chooseA ? 
                 (currentPair.dogInA ? currentPair.dogImage : currentPair.catImage) :
                 (currentPair.dogInA ? currentPair.catImage : currentPair.dogImage);
             
-            // Record the type they actually chose
             actualChoice = chooseA ? 
                 (currentPair.dogInA ? "Dog" : "Cat") :
                 (currentPair.dogInA ? "Cat" : "Dog");
                 
             console.log("Dog in A:", currentPair.dogInA, "User chose A:", chooseA, "User chose dog:", userChoseCorrect);
         } else {
-            // Face comparison mode: User is correct if they choose the real image
+            // Pretest and Phase II modes: User is correct if they choose the real image
             userChoseCorrect = (chooseA && currentPair.realInA) || (!chooseA && !currentPair.realInA);
             
-            // For recording purposes, determine what image they actually selected
             selectedImage = chooseA ? 
                 (currentPair.realInA ? currentPair.realImage : currentPair.aiImage) :
                 (currentPair.realInA ? currentPair.aiImage : currentPair.realImage);
             
-            // Record the type they actually chose, not just A/B
             actualChoice = chooseA ? 
                 (currentPair.realInA ? "Real" : "AI") :
                 (currentPair.realInA ? "AI" : "Real");

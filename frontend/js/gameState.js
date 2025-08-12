@@ -1,40 +1,35 @@
 // Global game state management
 const GameState = {
     allImages: [],
-    demoImages: [], // New for demo mode
+    setBImages: [], // For Phase II
+    demoImages: [],
     currentImages: [],
     currentIndex: 0,
     results: [],
     gameStartTime: new Date(),
-    currentMode: 'comparison', // 'comparison' or 'demo'
+    currentMode: 'comparison', // 'comparison', 'demo', or 'phase2'
     questionsPerGame: 10,
-    demoTrials: 5, // Number of demo trials
-    trainingTirrals:  18,
+    demoTrials: 5,
     
     // DOM element references
     elements: {
         landingOverlay: null,
+        trainingOverlay: null,
         demoBtn: null,
         startBtn: null,
-        questionText: null,
-        progressDiv: null,
+        trainingHomeBtn: null,
+        phase2Btn: null,
         progressComparison: null,
-        splitContainer: null,
-        centerOverlay: null,
         comparisonOverlay: null,
         resultsOverlay: null,
         scoreDiv: null,
         breakdownDiv: null,
-        img: null,
-        aiSide: null,
-        realSide: null,
         optionA: null,
         optionB: null,
         imageA: null,
         imageB: null,
         homeBtn: null,
-        restartBtn: null,
-        tabBtns: null,
+        trainingBtn: null,
         feedbackFlash: null,
         webcamContainer: null,
         webcamToggle: null,
@@ -44,35 +39,26 @@ const GameState = {
     // Initialize DOM references
     initElements() {
         this.elements.landingOverlay = document.getElementById("landing-overlay");
+        this.elements.trainingOverlay = document.getElementById("training-overlay");
         this.elements.demoBtn = document.getElementById("demo-btn");
         this.elements.startBtn = document.getElementById("start-btn");
-        this.elements.questionText = document.getElementById("question-text");
-        this.elements.progressDiv = document.getElementById("progress");
+        this.elements.trainingHomeBtn = document.getElementById("training-home-btn");
+        this.elements.phase2Btn = document.getElementById("phase2-btn");
         this.elements.progressComparison = document.getElementById("progress-comparison");
-        this.elements.splitContainer = document.getElementById("split-container");
-        this.elements.centerOverlay = document.getElementById("center-overlay");
         this.elements.comparisonOverlay = document.getElementById("comparison-overlay");
         this.elements.resultsOverlay = document.getElementById("results");
         this.elements.scoreDiv = document.getElementById("score");
         this.elements.breakdownDiv = document.getElementById("breakdown");
-        this.elements.img = document.getElementById("face");
-        this.elements.aiSide = document.getElementById("ai-side");
-        this.elements.realSide = document.getElementById("real-side");
         this.elements.optionA = document.getElementById("option-a");
         this.elements.optionB = document.getElementById("option-b");
         this.elements.imageA = document.getElementById("image-a");
         this.elements.imageB = document.getElementById("image-b");
         this.elements.homeBtn = document.getElementById("home-btn");
-        this.elements.restartBtn = document.getElementById("restart-btn");
-        this.elements.tabBtns = document.querySelectorAll(".tab-btn");
+        this.elements.trainingBtn = document.getElementById("training-btn");
         this.elements.feedbackFlash = document.getElementById("feedback-flash");
         this.elements.webcamContainer = document.getElementById("webcam-container");
         this.elements.webcamToggle = document.getElementById("webcam-toggle");
         this.elements.instructions = document.getElementById("instructions");
-        
-        // Debug: Log which elements were found
-        console.log("Demo button found:", this.elements.demoBtn);
-        console.log("Home button found:", this.elements.homeBtn);
     },
     
     // Reset game state
@@ -90,7 +76,8 @@ const GameState = {
             filename: this.currentMode === 'demo' ? 
                 `${pairData.dogImage.file} vs ${pairData.catImage.file}` :
                 `${pairData.realImage.file} vs ${pairData.aiImage.file}`,
-            actualType: this.currentMode === 'demo' ? "Demo" : "Comparison",
+            actualType: this.currentMode === 'demo' ? "Demo" : 
+                       this.currentMode === 'phase2' ? "Phase II" : "Pretest",
             userGuess: userGuess,
             correct: isCorrect,
             timestamp: new Date().toISOString()
@@ -127,8 +114,8 @@ const GameState = {
         // Update body class for CSS
         if (newMode === 'demo') {
             document.body.className = 'demo-mode';
-        } else if (newMode === 'traingin') {
-            document.body.className = 'training-mode'
+        } else if (newMode === 'phase2') {
+            document.body.className = 'phase2-mode';
         } else {
             document.body.className = '';
         }
@@ -145,6 +132,7 @@ const GameState = {
         // Hide all game interfaces
         this.elements.comparisonOverlay.style.display = "none";
         this.elements.resultsOverlay.style.display = "none";
+        this.elements.trainingOverlay.style.display = "none";
         this.elements.instructions.classList.remove("show");
         this.elements.webcamContainer.classList.add("hidden");
         this.elements.webcamToggle.style.display = "none";

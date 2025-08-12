@@ -91,7 +91,7 @@ const Webcam = {
         
         return new Promise((resolve) => {
             this.video.onloadedmetadata = async () => {
-                // ADD THIS LINE - Force video to play
+                // Force video to play
                 await this.video.play();
                 console.log("Camera ready and playing");
                 resolve(this.video);
@@ -149,6 +149,10 @@ const Webcam = {
             // Demo mode: Orange theme
             leftColor = 'rgba(230, 126, 34, 0.2)'; // Orange for B
             rightColor = 'rgba(243, 156, 18, 0.2)'; // Yellow-orange for A
+        } else if (GameState.currentMode === 'phase2') {
+            // Phase II mode: Purple theme
+            leftColor = 'rgba(142, 68, 173, 0.2)'; // Purple for B
+            rightColor = 'rgba(155, 89, 182, 0.2)'; // Light purple for A
         } else {
             // Pretest mode: Blue/Purple theme
             leftColor = 'rgba(155, 89, 182, 0.2)'; // Purple for B
@@ -211,9 +215,7 @@ const Webcam = {
         
         const centerX = width / 2;
         const instructionY = height - 20;
-        const instructionText = GameState.currentMode === 'demo' ? 
-            'Raise hand in colored region to vote' : 
-            'Raise hand in colored region to vote';
+        const instructionText = 'Raise hand in colored region to vote';
         this.ctx.strokeText(instructionText, centerX, instructionY);
         this.ctx.fillText(instructionText, centerX, instructionY);
     },
@@ -273,13 +275,14 @@ const Webcam = {
         // Show visual feedback
         this.showVoteFeedback(direction, handX, handLabel);
         
-        // Cast the vote - same for both demo and pretest modes
+        // Cast the vote - same for all modes
         // NOTE: Front camera is mirrored, so we flip the logic
         // When you raise RIGHT hand, it appears on LEFT side of screen = should vote B
         // When you raise LEFT hand, it appears on RIGHT side of screen = should vote A
         const chooseA = direction === 'RIGHT_SIDE';  // FLIPPED
         
-        const modeText = GameState.currentMode === 'demo' ? 'Demo' : 'Pretest';
+        const modeText = GameState.currentMode === 'demo' ? 'Demo' : 
+                       GameState.currentMode === 'phase2' ? 'Phase II' : 'Pretest';
         console.log(`${modeText} mode hand vote: ${chooseA ? 'A' : 'B'} (${handLabel} hand raised)`);
         ComparisonMode.vote(chooseA);
     },
@@ -292,6 +295,10 @@ const Webcam = {
         if (GameState.currentMode === 'demo') {
             // Demo mode: Orange theme
             color = direction === 'RIGHT_SIDE' ? '#f39c12' : '#e67e22';
+            text = direction === 'RIGHT_SIDE' ? 'OPTION A!' : 'OPTION B!';
+        } else if (GameState.currentMode === 'phase2') {
+            // Phase II mode: Purple theme
+            color = direction === 'RIGHT_SIDE' ? '#9b59b6' : '#8e44ad';
             text = direction === 'RIGHT_SIDE' ? 'OPTION A!' : 'OPTION B!';
         } else {
             // Pretest mode: Blue/Purple theme

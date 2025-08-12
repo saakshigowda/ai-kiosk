@@ -15,31 +15,15 @@ const Utils = {
         return questionArray[Math.floor(Math.random() * questionArray.length)];
     },
     
-    // Update progress display
-    updateProgress() {
-        const totalQuestions = GameState.currentMode === 'single' ? 
-            Math.min(GameState.questionsPerGame, GameState.currentImages.length) : 
-            GameState.currentImages.length;
-        GameState.elements.progressDiv.textContent = `Image ${GameState.currentIndex + 1} of ${totalQuestions}`;
-    },
-    
     // Error handling for images
     handleImageError(imgElement, imagePath) {
         console.error("Failed to load image:", imagePath);
-        imgElement.src = "https://via.placeholder.com/320x320/333/fff?text=Image+Not+Found";
+        imgElement.src = "https://via.placeholder.com/250x250/333/fff?text=Image+Not+Found";
     }
 };
 
 // Question sets for different modes
 const Questions = {
-    singleMode: [
-        "Is this face real or AI-generated?",
-        "Real person or computer generated?", 
-        "Can you tell if this is a real human?",
-        "Human face or artificial creation?",
-        "Real photo or AI synthesis?"
-    ],
-    
     comparison: [
         "Which one do you think is Real?",
         "Which face belongs to a real person?",

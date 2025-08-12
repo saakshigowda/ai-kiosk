@@ -4,15 +4,18 @@ const Game = {
     async init() {
         console.log("Initializing AI Face Detection Challenge...");
         
-        // Initialize DOM elements
         GameState.initElements();
-        
-        // Load image databases
         GameState.allImages = ImageLoader.loadDatabase();
+        GameState.setBImages = ImageLoader.loadSetBDatabase();
         GameState.demoImages = ImageLoader.loadDemoDatabase();
         
         if (GameState.allImages.length === 0) {
             console.error("No face images loaded! Check your file paths and names.");
+            return;
+        }
+        
+        if (GameState.setBImages.length === 0) {
+            console.error("No SetB images loaded! Check your SetB folder.");
             return;
         }
         
@@ -21,25 +24,17 @@ const Game = {
             return;
         }
         
-        // Setup event listeners
         this.setupEventListeners();
-        
-        // Setup image error handlers
         ImageLoader.setupErrorHandlers();
         
         // Initialize webcam (async, non-blocking)
-        this.initWebcam();
-        
-        console.log("Game initialized successfully!");
-    },
-    
-    // Initialize webcam in background
-    async initWebcam() {
         try {
             await Webcam.init();
         } catch (error) {
             console.log("Webcam initialization failed, continuing with button controls only");
         }
+        
+        console.log("Game initialized successfully!");
     },
     
     // Start the pretest
@@ -48,7 +43,6 @@ const Game = {
         
         GameState.switchMode('comparison');
         
-        // Hide landing page and show game
         GameState.elements.landingOverlay.style.display = "none";
         GameState.elements.comparisonOverlay.style.display = "block";
         GameState.elements.instructions.classList.add("show");
@@ -67,7 +61,6 @@ const Game = {
         
         GameState.switchMode('demo');
         
-        // Hide landing page and show game
         GameState.elements.landingOverlay.style.display = "none";
         GameState.elements.comparisonOverlay.style.display = "block";
         GameState.elements.instructions.classList.add("show");
@@ -79,6 +72,40 @@ const Game = {
         console.log("Demo: created", GameState.currentImages.length, "unique pairs");
         ComparisonMode.load();
     },
+
+    // Start Phase II
+    startPhase2() {
+        console.log("Starting Phase II...");
+        
+        GameState.switchMode('phase2');
+        
+        GameState.elements.trainingOverlay.style.display = "none";
+        GameState.elements.comparisonOverlay.style.display = "block";
+        GameState.elements.instructions.classList.add("show");
+        GameState.elements.webcamContainer.classList.remove("hidden");
+        GameState.elements.webcamToggle.style.display = "block";
+        
+        GameState.reset();
+        GameState.currentImages = ImageLoader.createPhase2Pairs(GameState.questionsPerGame);
+        console.log("Phase II: created", GameState.currentImages.length, "unique pairs");
+        ComparisonMode.load();
+    },
+
+    // Show training screen
+    showTraining() {
+        console.log("Showing training screen...");
+        
+        // Hide other screens
+        GameState.elements.resultsOverlay.style.display = "none";
+        GameState.elements.comparisonOverlay.style.display = "none";
+        GameState.elements.landingOverlay.style.display = "none";
+        GameState.elements.instructions.classList.remove("show");
+        GameState.elements.webcamContainer.classList.add("hidden");
+        GameState.elements.webcamToggle.style.display = "none";
+        
+        // Show training screen
+        GameState.elements.trainingOverlay.style.display = "flex";
+    },
     
     // Move to next image/question
     nextImage() {
@@ -88,22 +115,6 @@ const Game = {
             Results.show();
         } else {
             ComparisonMode.load();
-        }
-    },
-    
-    // Restart the current game mode
-    restart() {
-        // Hide results if showing
-        Results.hide();
-        
-        // Reset visual effects
-        Feedback.resetComparison();
-        
-        // Restart the appropriate game mode
-        if (GameState.currentMode === 'demo') {
-            this.startDemo();
-        } else {
-            this.startPretest();
         }
     },
     
@@ -120,6 +131,10 @@ const Game = {
         GameState.elements.demoBtn.addEventListener("click", () => this.startDemo());
         GameState.elements.startBtn.addEventListener("click", () => this.startPretest());
         
+        // Training screen buttons
+        GameState.elements.trainingHomeBtn.addEventListener("click", () => this.goHome());
+        GameState.elements.phase2Btn.addEventListener("click", () => this.startPhase2());
+        
         // Comparison mode voting
         GameState.elements.optionA.addEventListener("click", () => {
             console.log("Option A clicked!");
@@ -133,13 +148,12 @@ const Game = {
         
         // Results buttons
         GameState.elements.homeBtn.addEventListener("click", () => this.goHome());
-        GameState.elements.restartBtn.addEventListener("click", () => this.restart());
+        GameState.elements.trainingBtn.addEventListener("click", () => this.showTraining());
         
         // Keyboard handlers
         document.body.addEventListener("keydown", e => {
             console.log("Key pressed:", e.key);
             
-            // Only respond to keys during active game
             if (GameState.elements.comparisonOverlay.style.display !== "block") return;
             if (GameState.currentIndex >= GameState.currentImages.length) return;
             
