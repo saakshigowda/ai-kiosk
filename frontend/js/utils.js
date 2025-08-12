@@ -46,6 +46,13 @@ const Questions = {
         "Which image shows a real human?",
         "Which one is the genuine photograph?",
         "Pick the real person:"
+    ],
+
+    demo: [
+        "Which one is the dog?",
+        "Pick the dog!",
+        "Which image shows a dog?",
+        "Can you find the dog?",
+        "Choose the dog:"
     ]
 };
-

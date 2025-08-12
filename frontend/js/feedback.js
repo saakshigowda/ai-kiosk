@@ -63,6 +63,44 @@ const Feedback = {
             realOption.querySelector('.comparison-label').style.background = 'rgba(46, 204, 113, 0.9)';
         }
     },
+
+    // Show feedback for demo mode voting
+    showDemo(isCorrect, dogInA, userChoseA) {
+        // Flash the screen with color
+        this.flashScreen(isCorrect);
+        
+        const dogOption = dogInA ? GameState.elements.optionA : GameState.elements.optionB;
+        const catOption = dogInA ? GameState.elements.optionB : GameState.elements.optionA;
+        const chosenOption = userChoseA ? GameState.elements.optionA : GameState.elements.optionB;
+        
+        // Disable clicking
+        GameState.elements.optionA.style.pointerEvents = 'none';
+        GameState.elements.optionB.style.pointerEvents = 'none';
+        
+        if (isCorrect) {
+            // User chose correctly (the dog)
+            dogOption.querySelector('.comparison-image').style.border = '6px solid #2ecc71';
+            dogOption.querySelector('.comparison-image').style.boxShadow = '0 0 30px rgba(46, 204, 113, 0.8)';
+            dogOption.querySelector('.comparison-label').textContent = 'DOG ✓';
+            dogOption.querySelector('.comparison-label').style.background = 'rgba(46, 204, 113, 0.9)';
+            
+            // Mark the cat image
+            catOption.querySelector('.comparison-label').textContent = 'CAT';
+            catOption.querySelector('.comparison-label').style.background = 'rgba(0, 0, 0, 0.5)';
+        } else {
+            // User chose incorrectly (picked the cat)
+            chosenOption.querySelector('.comparison-image').style.border = '6px solid #e74c3c';
+            chosenOption.querySelector('.comparison-image').style.boxShadow = '0 0 30px rgba(231, 76, 60, 0.8)';
+            chosenOption.querySelector('.comparison-label').textContent = 'CAT ✗';
+            chosenOption.querySelector('.comparison-label').style.background = 'rgba(231, 76, 60, 0.9)';
+            
+            // Show correct answer
+            dogOption.querySelector('.comparison-image').style.border = '6px solid #2ecc71';
+            dogOption.querySelector('.comparison-image').style.boxShadow = '0 0 30px rgba(46, 204, 113, 0.8)';
+            dogOption.querySelector('.comparison-label').textContent = 'DOG ✓';
+            dogOption.querySelector('.comparison-label').style.background = 'rgba(46, 204, 113, 0.9)';
+        }
+    },
     
     // Flash the screen with feedback color
     flashScreen(isCorrect) {

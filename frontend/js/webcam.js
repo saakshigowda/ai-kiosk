@@ -75,29 +75,29 @@ const Webcam = {
         });
     },
     
-// Setup camera stream
-async setupCamera() {
-    console.log("Setting up camera...");
-    
-    const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { 
-            width: 640, 
-            height: 480,
-            facingMode: 'user'  // Front-facing camera
-        } 
-    });
-    
-    this.video.srcObject = stream;
-    
-    return new Promise((resolve) => {
-        this.video.onloadedmetadata = async () => {
-            // ADD THIS LINE - Force video to play
-            await this.video.play();
-            console.log("Camera ready and playing");
-            resolve(this.video);
-        };
-    });
-},
+    // Setup camera stream
+    async setupCamera() {
+        console.log("Setting up camera...");
+        
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+            video: { 
+                width: 640, 
+                height: 480,
+                facingMode: 'user'  // Front-facing camera
+            } 
+        });
+        
+        this.video.srcObject = stream;
+        
+        return new Promise((resolve) => {
+            this.video.onloadedmetadata = async () => {
+                // ADD THIS LINE - Force video to play
+                await this.video.play();
+                console.log("Camera ready and playing");
+                resolve(this.video);
+            };
+        });
+    },
     
     // Initialize MediaPipe Hands
     async setupHandDetection() {
@@ -122,6 +122,9 @@ async setupCamera() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.drawImage(results.image, 0, 0, this.canvas.width, this.canvas.height);
         
+        // Draw hand region overlays
+        this.drawHandRegionOverlays();
+        
         if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
             // Draw hand landmarks for debugging
             for (const landmarks of results.multiHandLandmarks) {
@@ -132,6 +135,87 @@ async setupCamera() {
             // Detect voting gestures
             this.detectVotingGesture(results.multiHandLandmarks, results.multiHandedness);
         }
+    },
+    
+    // Draw overlay regions showing where to place hands
+    drawHandRegionOverlays() {
+        const width = this.canvas.width;
+        const height = this.canvas.height;
+        const threshold = this.settings.POSITION_THRESHOLD; // 0.3
+        
+        // Get colors based on current mode
+        let leftColor, rightColor;
+        if (GameState.currentMode === 'demo') {
+            // Demo mode: Orange theme
+            leftColor = 'rgba(230, 126, 34, 0.2)'; // Orange for B
+            rightColor = 'rgba(243, 156, 18, 0.2)'; // Yellow-orange for A
+        } else {
+            // Pretest mode: Blue/Purple theme
+            leftColor = 'rgba(155, 89, 182, 0.2)'; // Purple for B
+            rightColor = 'rgba(52, 152, 219, 0.2)'; // Blue for A
+        }
+        
+        // Left region (for Option B)
+        const leftRegionWidth = threshold * width;
+        this.ctx.fillStyle = leftColor;
+        this.ctx.fillRect(0, 0, leftRegionWidth, height);
+        
+        // Right region (for Option A)  
+        const rightRegionStart = (1 - threshold) * width;
+        const rightRegionWidth = threshold * width;
+        this.ctx.fillStyle = rightColor;
+        this.ctx.fillRect(rightRegionStart, 0, rightRegionWidth, height);
+        
+        // Draw border lines
+        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+        this.ctx.lineWidth = 2;
+        this.ctx.setLineDash([5, 5]); // Dashed line
+        
+        // Left border
+        this.ctx.beginPath();
+        this.ctx.moveTo(leftRegionWidth, 0);
+        this.ctx.lineTo(leftRegionWidth, height);
+        this.ctx.stroke();
+        
+        // Right border
+        this.ctx.beginPath();
+        this.ctx.moveTo(rightRegionStart, 0);
+        this.ctx.lineTo(rightRegionStart, height);
+        this.ctx.stroke();
+        
+        this.ctx.setLineDash([]); // Reset to solid line
+        
+        // Add text labels
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        this.ctx.font = 'bold 16px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.strokeStyle = '#000';
+        this.ctx.lineWidth = 2;
+        
+        // Left label (Option B)
+        const leftLabelX = leftRegionWidth / 2;
+        this.ctx.strokeText('B', leftLabelX, 30);
+        this.ctx.fillText('B', leftLabelX, 30);
+        
+        // Right label (Option A)  
+        const rightLabelX = rightRegionStart + (rightRegionWidth / 2);
+        this.ctx.strokeText('A', rightLabelX, 30);
+        this.ctx.fillText('A', rightLabelX, 30);
+        
+        // Instructions at bottom
+        this.ctx.font = '12px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        this.ctx.strokeStyle = '#000';
+        this.ctx.lineWidth = 1;
+        
+        const centerX = width / 2;
+        const instructionY = height - 20;
+        const instructionText = GameState.currentMode === 'demo' ? 
+            'Raise hand in colored region to vote' : 
+            'Raise hand in colored region to vote';
+        this.ctx.strokeText(instructionText, centerX, instructionY);
+        this.ctx.fillText(instructionText, centerX, instructionY);
     },
     
     // Detect when user raises left or right hand for voting
@@ -182,44 +266,38 @@ async setupCamera() {
         }
     },
     
-// Process the voting gesture
-processVote(direction, handX, handLabel) {
-    console.log(`Processing vote: ${direction} (${handLabel} hand)`);
-    
-    // Show visual feedback
-    this.showVoteFeedback(direction, handX, handLabel);
-    
-    // Cast the vote based on current game mode
-    // NOTE: Front camera is mirrored, so we flip the logic
-    if (GameState.currentMode === 'single') {
-        // FIXED: Flip the logic for mirrored camera
-        // When you raise RIGHT hand, it appears on LEFT side of screen = should vote REAL
-        // When you raise LEFT hand, it appears on RIGHT side of screen = should vote AI
-        const isAI = direction === 'RIGHT_SIDE';  // FLIPPED
-        console.log(`Single mode hand vote: ${isAI ? 'AI' : 'Real'} (${handLabel} hand raised)`);
-        SingleMode.vote(isAI);
-    } else {
-        // FIXED: Flip for comparison mode too
+    // Process the voting gesture
+    processVote(direction, handX, handLabel) {
+        console.log(`Processing vote: ${direction} (${handLabel} hand)`);
+        
+        // Show visual feedback
+        this.showVoteFeedback(direction, handX, handLabel);
+        
+        // Cast the vote - same for both demo and pretest modes
+        // NOTE: Front camera is mirrored, so we flip the logic
+        // When you raise RIGHT hand, it appears on LEFT side of screen = should vote B
+        // When you raise LEFT hand, it appears on RIGHT side of screen = should vote A
         const chooseA = direction === 'RIGHT_SIDE';  // FLIPPED
-        console.log(`Comparison mode hand vote: ${chooseA ? 'A' : 'B'} (${handLabel} hand raised)`);
+        
+        const modeText = GameState.currentMode === 'demo' ? 'Demo' : 'Pretest';
+        console.log(`${modeText} mode hand vote: ${chooseA ? 'A' : 'B'} (${handLabel} hand raised)`);
         ComparisonMode.vote(chooseA);
-    }
-},
+    },
     
     // Show visual feedback for vote
     showVoteFeedback(direction, handX, handLabel) {
-        // Colors based on game mode
+        // Colors and text based on game mode
         let color, text;
-    
-    if (GameState.currentMode === 'single') {
-        // FLIPPED: RIGHT_SIDE = AI, LEFT_SIDE = Real
-        color = direction === 'RIGHT_SIDE' ? '#e74c3c' : '#2ecc71';
-        text = direction === 'RIGHT_SIDE' ? 'AI VOTE!' : 'REAL VOTE!';
-    } else {
-        // FLIPPED: RIGHT_SIDE = A, LEFT_SIDE = B  
-        color = direction === 'RIGHT_SIDE' ? '#3498db' : '#9b59b6';
-        text = direction === 'RIGHT_SIDE' ? 'OPTION A!' : 'OPTION B!';
-    }
+        
+        if (GameState.currentMode === 'demo') {
+            // Demo mode: Orange theme
+            color = direction === 'RIGHT_SIDE' ? '#f39c12' : '#e67e22';
+            text = direction === 'RIGHT_SIDE' ? 'OPTION A!' : 'OPTION B!';
+        } else {
+            // Pretest mode: Blue/Purple theme
+            color = direction === 'RIGHT_SIDE' ? '#3498db' : '#9b59b6';
+            text = direction === 'RIGHT_SIDE' ? 'OPTION A!' : 'OPTION B!';
+        }
         
         // Draw feedback on canvas
         this.ctx.fillStyle = color;
@@ -260,7 +338,7 @@ processVote(direction, handX, handLabel) {
         // Update instructions
         const instructions = document.querySelector('.instructions');
         if (instructions && isReady) {
-            instructions.textContent = 'Click sides • Arrow keys • Raise left/right hand to vote';
+            instructions.textContent = 'Click images • Arrow keys • Raise left/right hand to vote';
         }
     },
     

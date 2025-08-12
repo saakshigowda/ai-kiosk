@@ -24,7 +24,7 @@ header {
     padding: 1rem 2rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     z-index: 1000;
 }
@@ -35,100 +35,108 @@ header {
     color: #fff;
 }
 
-.nav-tabs {
-    display: flex;
-    gap: 1rem;
-}
-
-.tab-btn {
-    padding: 0.6rem 1.2rem;
-    background: transparent;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    color: rgba(255, 255, 255, 0.7);
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.tab-btn.active {
-    border-color: #fff;
-    color: #fff;
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.tab-btn:hover:not(.active) {
-    border-color: rgba(255, 255, 255, 0.6);
-    color: rgba(255, 255, 255, 0.9);
-}
-
-/* Split screen layout */
-.split-container {
+/* Landing Page */
+.landing-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
+    background: linear-gradient(180deg, #3498db 0%, #9b59b6 100%);
     display: flex;
-}
-
-.split-side {
-    flex: 1;
-    position: relative;
-    display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    z-index: 300;
 }
 
-.split-side.left {
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); /* Blue */
-}
-.split-side.right {
-    background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); /* Purple */
-}
-
-.split-side:hover {
-    flex: 1.1;
-}
-
-.split-side:hover .side-content {
-    transform: scale(1.05);
-}
-
-.side-content {
+.landing-content {
     text-align: center;
-    transition: transform 0.3s ease;
+    max-width: 600px;
     padding: 2rem;
 }
 
-.side-icon {
-    font-size: 6rem;
-    margin-bottom: 1rem;
-    opacity: 0.9;
-}
-
-.side-title {
-    font-size: 3rem;
+.landing-title {
+    font-size: 4rem;
     font-weight: bold;
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.side-subtitle {
+.landing-subtitle {
     font-size: 1.5rem;
-    opacity: 0.8;
+    margin-bottom: 2rem;
+    opacity: 0.9;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-/* Center content overlay - SINGLE MODE */
+.landing-description {
+    font-size: 1.2rem;
+    margin-bottom: 3rem;
+    line-height: 1.6;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 1.5rem;
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.landing-buttons {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.demo-btn, .start-btn {
+    padding: 1.5rem 4rem;
+    font-size: 2rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 20px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.demo-btn {
+    background: #f39c12;
+}
+
+.demo-btn:hover {
+    background: #e67e22;
+    transform: translateY(-3px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.start-btn {
+    background: #2ecc71;
+}
+
+.start-btn:hover {
+    background: #27ae60;
+    transform: translateY(-3px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* Comparison Mode Overlay */
+.comparison-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(180deg, #3498db 0%, #9b59b6 100%);
+}
+
 .center-overlay {
     position: fixed;
-    top: 50%;
+    top: 15%;
     left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 100;
+    transform: translateX(-50%);
+    z-index: 200;
     text-align: center;
     pointer-events: none;
 }
@@ -153,69 +161,6 @@ header {
     opacity: 0.8;
 }
 
-.image-container {
-    position: relative;
-    margin-bottom: 2rem;
-}
-
-.main-image {
-    width: 300px;
-    height: 300px;
-    border-radius: 20px;
-    border: 4px solid rgba(255, 255, 255, 0.3);
-    object-fit: cover;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-    transition: transform 0.3s ease;
-}
-
-.main-image:hover {
-    transform: scale(1.02);
-}
-
-/* Comparison mode adjustments */
-.comparison-mode .split-container {
-    display: none;
-}
-
-.comparison-mode .center-overlay {
-    display: none;
-}
-
-.comparison-mode .comparison-overlay {
-    display: block !important;
-}
-
-.comparison-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: linear-gradient(45deg, #e74c3c 0%, #e74c3c 49%, #2ecc71 51%, #2ecc71 100%);
-}
-
-/* COMPARISON MODE QUESTION - AT TOP */
-.comparison-overlay .center-overlay {
-    display: block !important;
-    position: fixed;
-    top: 120px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 200;
-    pointer-events: none;
-}
-
-.comparison-overlay .question-display {
-    margin-bottom: 0;
-    padding: 1rem 2rem;
-}
-
-.comparison-overlay .image-container {
-    display: none;
-}
-
-/* COMPARISON MODE IMAGES - IN CENTER */
 .comparison-content {
     position: absolute;
     top: 55%;
@@ -303,10 +248,16 @@ header {
     text-align: left;
 }
 
-.restart-btn {
+.results-buttons {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.home-btn, .restart-btn {
     padding: 1rem 3rem;
     font-size: 1.5rem;
-    background: #3498db;
     border: none;
     border-radius: 15px;
     color: white;
@@ -315,10 +266,76 @@ header {
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
 }
 
+.home-btn {
+    background: #95a5a6;
+}
+
+.home-btn:hover {
+    background: #7f8c8d;
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+}
+
+.restart-btn {
+    background: #3498db;
+}
+
 .restart-btn:hover {
     background: #2980b9;
     transform: translateY(-2px);
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* Webcam feed in corner */
+.webcam-feed {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 200px;
+    height: 150px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    z-index: 500;
+    background: rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.webcam-feed:hover {
+    transform: scale(1.1);
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+.webcam-feed canvas {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    transform: scaleX(-1); /* Mirror the video feed */
+}
+
+.webcam-feed.hidden {
+    display: none;
+}
+
+.webcam-toggle {
+    position: fixed;
+    bottom: 180px;
+    right: 20px;
+    padding: 0.5rem 1rem;
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 500;
+    font-size: 0.9rem;
+}
+
+.webcam-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.6);
 }
 
 /* Instructions */
@@ -332,6 +349,11 @@ header {
     border-radius: 15px;
     z-index: 50;
     border: 1px solid rgba(255, 255, 255, 0.2);
+    display: none;
+}
+
+.instructions.show {
+    display: block;
 }
 
 /* Feedback animations */
@@ -359,23 +381,33 @@ header {
     background: #e74c3c;
 }
 
+/* Demo mode styling */
+.demo-mode .comparison-overlay {
+    background: linear-gradient(180deg, #f39c12 0%, #e67e22 100%);
+}
+
 /* Mobile responsiveness */
 @media (max-width: 768px) {
-    .split-container {
-        flex-direction: column;
+    .landing-title {
+        font-size: 2.5rem;
     }
     
-    .side-title {
-        font-size: 2rem;
-    }
-    
-    .side-subtitle {
+    .landing-subtitle {
         font-size: 1.2rem;
     }
     
-    .main-image {
-        width: 250px;
-        height: 250px;
+    .landing-description {
+        font-size: 1rem;
+    }
+    
+    .demo-btn, .start-btn {
+        padding: 1.2rem 3rem;
+        font-size: 1.5rem;
+    }
+    
+    .landing-buttons {
+        flex-direction: column;
+        align-items: center;
     }
     
     .comparison-content {
@@ -388,8 +420,23 @@ header {
         width: 200px;
         height: 200px;
     }
-    
-    .comparison-overlay .center-overlay {
-        top: 100px;
+
+    .webcam-feed {
+        width: 150px;
+        height: 112px;
+        bottom: 10px;
+        right: 10px;
+    }
+
+    .webcam-toggle {
+        bottom: 130px;
+        right: 10px;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+
+    .results-buttons {
+        flex-direction: column;
+        align-items: center;
     }
 }

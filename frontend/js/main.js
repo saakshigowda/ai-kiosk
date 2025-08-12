@@ -7,10 +7,17 @@ const Game = {
         // Initialize DOM elements
         GameState.initElements();
         
-        // Load image database
+        // Load image databases
         GameState.allImages = ImageLoader.loadDatabase();
+        GameState.demoImages = ImageLoader.loadDemoDatabase();
+        
         if (GameState.allImages.length === 0) {
-            console.error("No images loaded! Check your file paths and names.");
+            console.error("No face images loaded! Check your file paths and names.");
+            return;
+        }
+        
+        if (GameState.demoImages.length === 0) {
+            console.error("No demo images loaded! Check your animals folder.");
             return;
         }
         
@@ -22,9 +29,6 @@ const Game = {
         
         // Initialize webcam (async, non-blocking)
         this.initWebcam();
-        
-        // Start the game
-        this.start();
         
         console.log("Game initialized successfully!");
     },
@@ -38,84 +42,83 @@ const Game = {
         }
     },
     
-    // Start or restart the game
-    start() {
-        console.log("Starting game in", GameState.currentMode, "mode...");
+    // Start the pretest
+    startPretest() {
+        console.log("Starting pretest...");
         
-        // Reset game state
+        GameState.switchMode('comparison');
+        
+        // Hide landing page and show game
+        GameState.elements.landingOverlay.style.display = "none";
+        GameState.elements.comparisonOverlay.style.display = "block";
+        GameState.elements.instructions.classList.add("show");
+        GameState.elements.webcamContainer.classList.remove("hidden");
+        GameState.elements.webcamToggle.style.display = "block";
+        
         GameState.reset();
+        GameState.currentImages = ImageLoader.createComparisonPairs(GameState.questionsPerGame);
+        console.log("Pretest: created", GameState.currentImages.length, "unique pairs");
+        ComparisonMode.load();
+    },
+
+    // Start the demo
+    startDemo() {
+        console.log("Starting demo...");
         
-        if (GameState.currentMode === 'single') {
-            // For single mode: use shuffled subset
-            const maxQuestions = Math.min(GameState.questionsPerGame, GameState.allImages.length);
-            GameState.currentImages = Utils.shuffleArray(GameState.allImages).slice(0, maxQuestions);
-            console.log("Single mode: using", GameState.currentImages.length, "shuffled images");
-            SingleMode.load();
-        } else {
-            // For comparison mode: create predefined pairs to avoid repeats
-            GameState.currentImages = ImageLoader.createComparisonPairs(GameState.questionsPerGame);
-            console.log("Comparison mode: created", GameState.currentImages.length, "unique pairs");
-            ComparisonMode.load();
-        }
+        GameState.switchMode('demo');
+        
+        // Hide landing page and show game
+        GameState.elements.landingOverlay.style.display = "none";
+        GameState.elements.comparisonOverlay.style.display = "block";
+        GameState.elements.instructions.classList.add("show");
+        GameState.elements.webcamContainer.classList.remove("hidden");
+        GameState.elements.webcamToggle.style.display = "block";
+        
+        GameState.reset();
+        GameState.currentImages = ImageLoader.createDemoPairs(GameState.demoTrials);
+        console.log("Demo: created", GameState.currentImages.length, "unique pairs");
+        ComparisonMode.load();
     },
     
     // Move to next image/question
     nextImage() {
         GameState.currentIndex++;
         
-        const maxQuestions = GameState.currentMode === 'single' ? 
-            Math.min(GameState.questionsPerGame, GameState.currentImages.length) : 
-            GameState.currentImages.length;
-        
-        if (GameState.currentIndex >= maxQuestions) {
+        if (GameState.currentIndex >= GameState.currentImages.length) {
             Results.show();
         } else {
-            if (GameState.currentMode === 'single') {
-                SingleMode.load();
-            } else {
-                ComparisonMode.load();
-            }
+            ComparisonMode.load();
         }
     },
     
-    // Restart the game
+    // Restart the current game mode
     restart() {
         // Hide results if showing
         Results.hide();
         
         // Reset visual effects
-        if (GameState.currentMode === 'single') {
-            Feedback.resetSingle();
-        } else {
-            Feedback.resetComparison();
-        }
+        Feedback.resetComparison();
         
-        // Restart the game
-        this.start();
+        // Restart the appropriate game mode
+        if (GameState.currentMode === 'demo') {
+            this.startDemo();
+        } else {
+            this.startPretest();
+        }
+    },
+    
+    // Go back to home page
+    goHome() {
+        GameState.goHome();
     },
     
     // Setup all event listeners
     setupEventListeners() {
         console.log("Setting up event listeners...");
         
-        // Tab switching
-        GameState.elements.tabBtns.forEach(btn => {
-            btn.addEventListener('click', () => GameState.switchMode(btn.dataset.mode));
-        });
-        
-        // Single mode - click on sides
-        console.log("AI Side element:", GameState.elements.aiSide);
-        console.log("Real Side element:", GameState.elements.realSide);
-        
-        GameState.elements.aiSide.addEventListener("click", () => {
-            console.log("AI side clicked!");
-            SingleMode.vote(true);
-        });
-        
-        GameState.elements.realSide.addEventListener("click", () => {
-            console.log("Real side clicked!");
-            SingleMode.vote(false);
-        });
+        // Landing page buttons
+        GameState.elements.demoBtn.addEventListener("click", () => this.startDemo());
+        GameState.elements.startBtn.addEventListener("click", () => this.startPretest());
         
         // Comparison mode voting
         GameState.elements.optionA.addEventListener("click", () => {
@@ -128,47 +131,41 @@ const Game = {
             ComparisonMode.vote(false);
         });
         
-        // Restart button
+        // Results buttons
+        GameState.elements.homeBtn.addEventListener("click", () => this.goHome());
         GameState.elements.restartBtn.addEventListener("click", () => this.restart());
         
         // Keyboard handlers
         document.body.addEventListener("keydown", e => {
             console.log("Key pressed:", e.key);
             
-            const maxQuestions = GameState.currentMode === 'single' ? 
-                Math.min(GameState.questionsPerGame, GameState.currentImages.length) : 
-                GameState.currentImages.length;
-                
-            if (GameState.currentIndex >= maxQuestions) return;
+            // Only respond to keys during active game
+            if (GameState.elements.comparisonOverlay.style.display !== "block") return;
+            if (GameState.currentIndex >= GameState.currentImages.length) return;
             
-            if (GameState.currentMode === 'single') {
-                switch(e.key) {
-                    case "ArrowLeft":
-                        console.log("Left arrow - voting AI");
-                        SingleMode.vote(true);
-                        break;
-                    case "ArrowRight":
-                        console.log("Right arrow - voting Real");
-                        SingleMode.vote(false);
-                        break;
-                }
-            } else {
-                switch(e.key) {
-                    case "ArrowLeft":
-                    case "a":
-                    case "A":
-                        console.log("Left/A - voting for option A");
-                        ComparisonMode.vote(true);
-                        break;
-                    case "ArrowRight":
-                    case "b":
-                    case "B":
-                        console.log("Right/B - voting for option B");
-                        ComparisonMode.vote(false);
-                        break;
-                }
+            switch(e.key) {
+                case "ArrowLeft":
+                case "a":
+                case "A":
+                    console.log("Left/A - voting for option A");
+                    ComparisonMode.vote(true);
+                    break;
+                case "ArrowRight":
+                case "b":
+                case "B":
+                    console.log("Right/B - voting for option B");
+                    ComparisonMode.vote(false);
+                    break;
             }
         });
+        
+        // Webcam toggle functionality
+        if (GameState.elements.webcamToggle && GameState.elements.webcamContainer) {
+            GameState.elements.webcamToggle.addEventListener('click', () => {
+                GameState.elements.webcamContainer.classList.toggle('hidden');
+                GameState.elements.webcamToggle.textContent = GameState.elements.webcamContainer.classList.contains('hidden') ? '📹 Show Camera' : '📹 Hide Camera';
+            });
+        }
         
         console.log("Event listeners setup complete!");
     }
