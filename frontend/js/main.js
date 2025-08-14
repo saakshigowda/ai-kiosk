@@ -109,11 +109,22 @@ const Game = {
     
     // Move to next image/question
     nextImage() {
+        // Only proceed if we're waiting for next trial
+        if (!GameState.waitingForNextTrial) {
+            console.log("Not waiting for next trial, ignoring nextImage call");
+            return;
+        }
+        
+        console.log("Moving to next image...");
+        
+        // Move to next index
         GameState.currentIndex++;
         
         if (GameState.currentIndex >= GameState.currentImages.length) {
+            console.log("Game complete, showing results");
             Results.show();
         } else {
+            console.log(`Loading image ${GameState.currentIndex + 1} of ${GameState.currentImages.length}`);
             ComparisonMode.load();
         }
     },
@@ -154,22 +165,37 @@ const Game = {
         document.body.addEventListener("keydown", e => {
             console.log("Key pressed:", e.key);
             
+            // Only handle keys during comparison mode
             if (GameState.elements.comparisonOverlay.style.display !== "block") return;
-            if (GameState.currentIndex >= GameState.currentImages.length) return;
             
-            switch(e.key) {
-                case "ArrowLeft":
-                case "a":
-                case "A":
-                    console.log("Left/A - voting for option A");
-                    ComparisonMode.vote(true);
-                    break;
-                case "ArrowRight":
-                case "b":
-                case "B":
-                    console.log("Right/B - voting for option B");
-                    ComparisonMode.vote(false);
-                    break;
+            // Handle voting keys (only if not waiting for next trial)
+            if (!GameState.waitingForNextTrial) {
+                switch(e.key) {
+                    case "ArrowLeft":
+                    case "a":
+                    case "A":
+                        console.log("Left/A - voting for option A");
+                        ComparisonMode.vote(true);
+                        break;
+                    case "ArrowRight":
+                    case "b":
+                    case "B":
+                        console.log("Right/B - voting for option B");
+                        ComparisonMode.vote(false);
+                        break;
+                }
+            }
+            
+            // Handle next trial key (only if waiting for next trial)
+            if (GameState.waitingForNextTrial) {
+                switch(e.key) {
+                    case " ": // Space bar
+                    case "Enter":
+                        console.log("Space/Enter - proceeding to next trial");
+                        e.preventDefault(); // Prevent page scroll
+                        this.nextImage();
+                        break;
+                }
             }
         });
         
@@ -177,7 +203,7 @@ const Game = {
         if (GameState.elements.webcamToggle && GameState.elements.webcamContainer) {
             GameState.elements.webcamToggle.addEventListener('click', () => {
                 GameState.elements.webcamContainer.classList.toggle('hidden');
-                GameState.elements.webcamToggle.textContent = GameState.elements.webcamContainer.classList.contains('hidden') ? '📹 Show Camera' : '📹 Hide Camera';
+                GameState.elements.webcamToggle.textContent = GameState.elements.webcamContainer.classList.contains('hidden') ? 'ðŸ"¹ Show Camera' : 'ðŸ"¹ Hide Camera';
             });
         }
         

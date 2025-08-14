@@ -6,12 +6,15 @@ const Webcam = {
     hands: null,
     isSetup: false,
     lastGesture: 0,
+    gesturesEnabled: true,
+    waitingForThumbsUp: false, // NEW: State for waiting for confirmation gesture
     
     // Gesture detection settings
     settings: {
         GESTURE_COOLDOWN: 2000,      // ms between gestures (2 seconds)
         POSITION_THRESHOLD: 0.3,     // How far left/right to trigger
         RAISE_THRESHOLD: 0.15,       // How high hand must be raised
+        THUMBS_UP_THRESHOLD: 0.1,    // How much thumb should be extended for thumbs up
     },
     
     // Initialize webcam and MediaPipe
@@ -24,7 +27,7 @@ const Webcam = {
             this.canvas = document.getElementById('webcam-view');
             
             if (!this.video || !this.canvas) {
-                console.log("Webcam elements not found, continuing without hand tracking");
+                console.log("Webcam elements not found, continuing with button controls only");
                 return;
             }
             
@@ -42,14 +45,14 @@ const Webcam = {
             // Start the render loop
             this.startRenderLoop();
             
-            this.updateStatus("✅ Hand tracking ready! Raise left/right hand to vote", true);
+            this.updateStatus("âœ… Hand tracking ready! Raise left/right hand to vote", true);
             this.isSetup = true;
             
             console.log("Webcam and hand tracking initialized successfully!");
             
         } catch (error) {
             console.error("Failed to initialize webcam:", error);
-            this.updateStatus("❌ Camera not available. Use clicks/keys to vote.", false);
+            this.updateStatus("âŒ Camera not available. Use clicks/keys to vote.", false);
         }
     },
     
@@ -132,8 +135,13 @@ const Webcam = {
                 drawLandmarks(this.ctx, landmarks, {color: '#FF0000', lineWidth: 1});
             }
             
-            // Detect voting gestures
-            this.detectVotingGesture(results.multiHandLandmarks, results.multiHandedness);
+            if (this.waitingForThumbsUp) {
+                // Check for thumbs up gesture
+                this.detectThumbsUpGesture(results.multiHandLandmarks, results.multiHandedness);
+            } else {
+                // Detect voting gestures
+                this.detectVotingGesture(results.multiHandLandmarks, results.multiHandedness);
+            }
         }
     },
     
@@ -142,6 +150,35 @@ const Webcam = {
         const width = this.canvas.width;
         const height = this.canvas.height;
         const threshold = this.settings.POSITION_THRESHOLD; // 0.3
+        
+        if (this.waitingForThumbsUp) {
+            // Show different overlay when waiting for thumbs up
+            this.ctx.fillStyle = 'rgba(46, 204, 113, 0.2)'; // Green overlay
+            this.ctx.fillRect(0, 0, width, height);
+            
+            // Instructions for thumbs up or space
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            this.ctx.font = 'bold 20px Arial';
+            this.ctx.textAlign = 'center';
+            this.ctx.strokeStyle = '#000';
+            this.ctx.lineWidth = 3;
+            
+            const centerX = width / 2;
+            const centerY = height / 2;
+            
+            this.ctx.strokeText('THUMBS UP or SPACE', centerX, centerY - 30);
+            this.ctx.fillText('THUMBS UP or SPACE', centerX, centerY - 30);
+            
+            this.ctx.font = 'bold 16px Arial';
+            this.ctx.strokeText('Thumbs Up or Press Space', centerX, centerY);
+            this.ctx.fillText('Thumbs Up or Press Space', centerX, centerY);
+            
+            this.ctx.font = '14px Arial';
+            this.ctx.strokeText('to continue to next images', centerX, centerY + 25);
+            this.ctx.fillText('to continue to next images', centerX, centerY + 25);
+            
+            return;
+        }
         
         // Get colors based on current mode
         let leftColor, rightColor;
@@ -159,6 +196,12 @@ const Webcam = {
             rightColor = 'rgba(52, 152, 219, 0.2)'; // Blue for A
         }
         
+        // Dim colors if gestures are disabled
+        if (!this.gesturesEnabled) {
+            leftColor = leftColor.replace('0.2)', '0.1)');
+            rightColor = rightColor.replace('0.2)', '0.1)');
+        }
+        
         // Left region (for Option B)
         const leftRegionWidth = threshold * width;
         this.ctx.fillStyle = leftColor;
@@ -171,7 +214,7 @@ const Webcam = {
         this.ctx.fillRect(rightRegionStart, 0, rightRegionWidth, height);
         
         // Draw border lines
-        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+        this.ctx.strokeStyle = this.gesturesEnabled ? 'rgba(255, 255, 255, 0.8)' : 'rgba(255, 255, 255, 0.3)';
         this.ctx.lineWidth = 2;
         this.ctx.setLineDash([5, 5]); // Dashed line
         
@@ -190,7 +233,7 @@ const Webcam = {
         this.ctx.setLineDash([]); // Reset to solid line
         
         // Add text labels
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        this.ctx.fillStyle = this.gesturesEnabled ? 'rgba(255, 255, 255, 0.9)' : 'rgba(255, 255, 255, 0.4)';
         this.ctx.font = 'bold 16px Arial';
         this.ctx.textAlign = 'center';
         this.ctx.strokeStyle = '#000';
@@ -209,20 +252,91 @@ const Webcam = {
         // Instructions at bottom
         this.ctx.font = '12px Arial';
         this.ctx.textAlign = 'center';
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        this.ctx.fillStyle = this.gesturesEnabled ? 'rgba(255, 255, 255, 0.8)' : 'rgba(255, 255, 255, 0.4)';
         this.ctx.strokeStyle = '#000';
         this.ctx.lineWidth = 1;
         
         const centerX = width / 2;
         const instructionY = height - 20;
-        const instructionText = 'Raise hand in colored region to vote';
+        const instructionText = this.gesturesEnabled ? 
+            'Raise hand in colored region to vote' : 
+            'Hand voting disabled - transitioning...';
         this.ctx.strokeText(instructionText, centerX, instructionY);
         this.ctx.fillText(instructionText, centerX, instructionY);
+    },
+    
+    // Detect thumbs up gesture
+    detectThumbsUpGesture(handLandmarks, handedness) {
+        for (let i = 0; i < handLandmarks.length; i++) {
+            const landmarks = handLandmarks[i];
+            
+            // Get key landmarks for thumbs up detection
+            const thumb_tip = landmarks[4];      // Thumb tip
+            const thumb_ip = landmarks[3];       // Thumb intermediate phalanx
+            const thumb_mcp = landmarks[2];      // Thumb metacarpophalangeal
+            const index_tip = landmarks[8];      // Index finger tip
+            const index_pip = landmarks[6];      // Index finger proximal interphalangeal
+            const middle_tip = landmarks[12];    // Middle finger tip
+            const middle_pip = landmarks[10];    // Middle finger proximal interphalangeal
+            const ring_tip = landmarks[16];      // Ring finger tip
+            const ring_pip = landmarks[14];      // Ring finger proximal interphalangeal
+            const pinky_tip = landmarks[20];     // Pinky tip
+            const pinky_pip = landmarks[18];     // Pinky proximal interphalangeal
+            
+            // Check if thumb is extended upward
+            const thumbExtended = thumb_tip.y < thumb_ip.y && thumb_ip.y < thumb_mcp.y;
+            
+            // Check if other fingers are curled (tips below PIPs)
+            const indexCurled = index_tip.y > index_pip.y;
+            const middleCurled = middle_tip.y > middle_pip.y;
+            const ringCurled = ring_tip.y > ring_pip.y;
+            const pinkyCurled = pinky_tip.y > pinky_pip.y;
+            
+            // Check if hand is in center region
+            const handX = thumb_tip.x;
+            const inCenterRegion = handX > this.settings.POSITION_THRESHOLD && 
+                                 handX < (1 - this.settings.POSITION_THRESHOLD);
+            
+            if (thumbExtended && indexCurled && middleCurled && ringCurled && pinkyCurled && inCenterRegion) {
+                console.log("Thumbs up gesture detected!");
+                this.processThumbsUp();
+                return;
+            }
+        }
+    },
+    
+    // Process thumbs up gesture
+    processThumbsUp() {
+        if (!this.waitingForThumbsUp) return;
+        
+        this.waitingForThumbsUp = false;
+        this.gesturesEnabled = true;
+        
+        console.log("Thumbs up confirmed - proceeding to next image");
+        
+        // Show feedback
+        this.ctx.fillStyle = '#2ecc71';
+        this.ctx.font = 'bold 32px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.strokeStyle = '#000';
+        this.ctx.lineWidth = 3;
+        this.ctx.strokeText('âœ" READY!', this.canvas.width / 2, this.canvas.height / 2);
+        this.ctx.fillText('âœ" READY!', this.canvas.width / 2, this.canvas.height / 2);
+        
+        // Brief delay then load next image
+        setTimeout(() => {
+            Game.nextImage();
+        }, 500);
     },
     
     // Detect when user raises left or right hand for voting
     detectVotingGesture(handLandmarks, handedness) {
         const now = performance.now();
+        
+        // Check if gestures are enabled
+        if (!this.gesturesEnabled) {
+            return;
+        }
         
         // Cooldown check - prevent rapid voting
         if (now - this.lastGesture < this.settings.GESTURE_COOLDOWN) {
@@ -345,7 +459,7 @@ const Webcam = {
         // Update instructions
         const instructions = document.querySelector('.instructions');
         if (instructions && isReady) {
-            instructions.textContent = 'Click images • Arrow keys • Raise left/right hand to vote';
+            instructions.textContent = 'Click images • Arrow keys • Raise left/right hand to vote • Space to continue';
         }
     },
     

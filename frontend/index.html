@@ -191,7 +191,7 @@
 
         .center-overlay {
             position: fixed;
-            top: 15%;
+            top: 5%;
             left: 50%;
             transform: translateX(-50%);
             z-index: 200;
@@ -202,9 +202,9 @@
         .question-display {
             background: rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(20px);
-            padding: 1.5rem 3rem;
-            border-radius: 20px;
-            margin-bottom: 2rem;
+            padding: 1rem 2rem;
+            border-radius: 15px;
+            margin-bottom: 1rem;
             border: 2px solid rgba(255, 255, 255, 0.2);
         }
 
@@ -225,8 +225,10 @@
             left: 50%;
             transform: translate(-50%, -50%);
             display: flex;
-            gap: 4rem;
+            gap: 3rem;
             align-items: center;
+            justify-content: center;
+            width: 100%;
         }
 
         .comparison-option {
@@ -240,8 +242,8 @@
         }
 
         .comparison-image {
-            width: 250px;
-            height: 250px;
+            width: 60vh;
+            height: 60vh;
             border-radius: 20px;
             border: 4px solid rgba(255, 255, 255, 0.5);
             object-fit: cover;
@@ -490,8 +492,8 @@
             }
             
             .comparison-image {
-                width: 200px;
-                height: 200px;
+                width: 35vh;
+                height: 35vh;
             }
 
             .webcam-feed {
@@ -595,7 +597,7 @@
 
     <!-- Instructions -->
     <div class="instructions" id="instructions">
-        Click images • Arrow keys • Raise left/right hand to vote
+        Click images • Arrow keys • Raise left/right hand to vote • Space to continue
     </div>
 
     <!-- Feedback flash overlay -->

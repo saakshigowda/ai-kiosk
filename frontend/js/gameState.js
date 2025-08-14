@@ -8,8 +8,9 @@ const GameState = {
     results: [],
     gameStartTime: new Date(),
     currentMode: 'comparison', // 'comparison', 'demo', or 'phase2'
-    questionsPerGame: 10,
+    questionsPerGame: 15,
     demoTrials: 5,
+    waitingForNextTrial: false, // NEW: Prevents multiple votes and controls progression
     
     // DOM element references
     elements: {
@@ -66,6 +67,7 @@ const GameState = {
         this.currentIndex = 0;
         this.results = [];
         this.gameStartTime = new Date();
+        this.waitingForNextTrial = false;
     },
     
     // Record a game result

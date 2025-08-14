@@ -67,11 +67,37 @@ const ComparisonMode = {
             const totalQuestions = GameState.currentImages.length;
             GameState.elements.progressComparison.textContent = `Image ${GameState.currentIndex + 1} of ${totalQuestions}`;
         }
+        
+        // Enable voting gestures when new images load
+        if (typeof Webcam !== 'undefined' && Webcam.isSetup) {
+            Webcam.gesturesEnabled = true;
+            Webcam.waitingForThumbsUp = false;
+            console.log("New images loaded - voting gestures enabled");
+        }
+        
+        // Reset the waiting state for next trial
+        GameState.waitingForNextTrial = false;
     },
     
     // Handle user vote in comparison mode
     vote(chooseA) {
+        // Prevent multiple votes
+        if (GameState.waitingForNextTrial) {
+            console.log("Already voted, waiting for next trial");
+            return;
+        }
+        
         console.log("Comparison mode vote received:", chooseA ? "A" : "B");
+        
+        // Set waiting state to prevent multiple votes
+        GameState.waitingForNextTrial = true;
+        
+        // Disable voting gestures and enter thumbs up mode
+        if (typeof Webcam !== 'undefined' && Webcam.isSetup) {
+            Webcam.gesturesEnabled = false;
+            Webcam.waitingForThumbsUp = true;
+            console.log("Vote registered - now waiting for thumbs up or space to continue");
+        }
         
         const currentPair = GameState.currentImages[GameState.currentIndex];
         let userChoseCorrect, selectedImage, actualChoice;
@@ -113,9 +139,14 @@ const ComparisonMode = {
         
         GameState.recordResult(selectedImage, actualChoice, userChoseCorrect, currentPair);
         
-        // Delay before moving to next image
-        setTimeout(() => {
-            Game.nextImage();
-        }, 2500);
+        // Check if we've reached the end
+        if (GameState.currentIndex + 1 >= GameState.currentImages.length) {
+            // If at end, show results after a delay (no thumbs up or space needed)
+            setTimeout(() => {
+                Results.show();
+            }, 2500);
+        }
+        // Otherwise, wait for thumbs up gesture or space bar to load next image
+        // (this is handled in webcam.js processThumbsUp method or main.js space handler)
     }
 };
