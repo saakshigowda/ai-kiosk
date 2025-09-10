@@ -109,21 +109,23 @@ const GameState = {
     
     // Switch between game modes
     switchMode(newMode) {
-        if (newMode === this.currentMode) return;
-        
-        this.currentMode = newMode;
-        
-        // Update body class for CSS
-        if (newMode === 'demo') {
-            document.body.className = 'demo-mode';
-        } else if (newMode === 'phase2') {
-            document.body.className = 'phase2-mode';
-        } else {
-            document.body.className = '';
-        }
-        
-        console.log("Switched to mode:", newMode);
-    },
+    if (newMode === this.currentMode) return;
+    
+    this.currentMode = newMode;
+    
+    // Update body class for CSS
+    if (newMode === 'demo') {
+        document.body.className = 'demo-mode';
+    } else if (newMode === 'phase2') {
+        document.body.className = 'phase2-mode';
+    } else if (newMode === 'training') {
+        document.body.className = 'training-mode';
+    } else {
+        document.body.className = '';
+    }
+    
+    console.log("Switched to mode:", newMode);
+},
     
     // Go back to home page
     goHome() {

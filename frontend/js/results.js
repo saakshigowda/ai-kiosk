@@ -1,6 +1,6 @@
 // Results display and management
 const Results = {
-    // Show the results screen
+    // Show the results screen - now exports CSV instead of showing UI
     show() {
         GameState.elements.comparisonOverlay.style.display = "none";
         
@@ -8,43 +8,129 @@ const Results = {
         const totalQuestions = GameState.results.length;
         const percentage = Math.round((correctAnswers / totalQuestions) * 100);
         
-        // Update results title based on mode
-        const resultsTitle = GameState.elements.resultsOverlay.querySelector('.results-title');
-        if (resultsTitle) {
-            if (GameState.currentMode === 'demo') {
-                resultsTitle.textContent = '🐕 Demo Complete!';
-            } else if (GameState.currentMode === 'phase2') {
-                resultsTitle.textContent = '🎯 Phase II Complete!';
-            } else {
-                resultsTitle.textContent = '🎯 Pretest Complete!';
-            }
-        }
+        console.log(`Results: ${correctAnswers}/${totalQuestions} correct (${percentage}%)`);
         
-        GameState.elements.scoreDiv.innerHTML = `You got <strong>${correctAnswers} out of ${totalQuestions}</strong> correct (${percentage}%)`;
+        // Generate and download CSV instead of showing results screen
+        this.downloadCSV();
         
-        this.createBreakdown();
-        
-        // Show/hide appropriate buttons
-        const homeBtn = GameState.elements.homeBtn;
-        const trainingBtn = GameState.elements.trainingBtn;
-        
-        if (GameState.currentMode === 'demo') {
-            homeBtn.style.display = 'block';
-            trainingBtn.style.display = 'none';
-        } else if (GameState.currentMode === 'phase2') {
-            homeBtn.style.display = 'block';
-            trainingBtn.style.display = 'none';
-        } else {
-            // Pretest mode
-            homeBtn.style.display = 'block';
-            trainingBtn.style.display = 'block';
-            trainingBtn.textContent = '🎓 Next: Training';
-        }
-        
-        GameState.elements.resultsOverlay.style.display = "block";
+        // Show appropriate next screen based on mode
+        this.showNextScreen();
     },
     
-    // Create detailed breakdown of results
+    // Generate CSV data and trigger download
+    downloadCSV() {
+        const csvData = this.generateCSVData();
+        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+        
+        // Create download link
+        const link = document.createElement('a');
+        if (link.download !== undefined) {
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            
+            // Generate filename with timestamp and mode
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+            const mode = GameState.currentMode;
+            link.setAttribute('download', `ai-detection-results-${mode}-${timestamp}.csv`);
+            
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            console.log(`CSV downloaded: ai-detection-results-${mode}-${timestamp}.csv`);
+        }
+    },
+    
+    // Generate CSV data from results
+    generateCSVData() {
+        // CSV Headers
+        const headers = [
+            'ImageNumber',
+            'Mode', 
+            'UserGuess',
+            'Correct',
+            'Timestamp',
+            'GameStartTime',
+            'ResponseTime',
+            'Filename',
+            'ActualType'
+        ];
+        
+        // Add mode-specific headers
+        if (GameState.currentMode === 'demo') {
+            headers.push('DogImage', 'CatImage', 'DogInA');
+        } else {
+            headers.push('RealImage', 'AIImage', 'RealInA');
+        }
+        
+        let csv = headers.join(',') + '\n';
+        
+        // Add data rows
+        GameState.results.forEach(result => {
+            const row = [
+                result.imageNumber,
+                result.mode,
+                `"${result.userGuess}"`, // Quoted in case of commas
+                result.correct,
+                result.timestamp,
+                GameState.gameStartTime.toISOString(),
+                this.calculateResponseTime(result.timestamp),
+                `"${result.filename}"`, // Quoted in case of commas
+                `"${result.actualType}"` // Quoted in case of commas
+            ];
+            
+            // Add mode-specific data
+            if (result.comparison) {
+                if (GameState.currentMode === 'demo') {
+                    row.push(
+                        `"${result.comparison.dogImage}"`,
+                        `"${result.comparison.catImage}"`,
+                        result.comparison.dogInA
+                    );
+                } else {
+                    row.push(
+                        `"${result.comparison.realImage}"`,
+                        `"${result.comparison.aiImage}"`,
+                        result.comparison.realInA
+                    );
+                }
+            }
+            
+            csv += row.join(',') + '\n';
+        });
+        
+        return csv;
+    },
+    
+    // Calculate response time (placeholder - you'd need to track question start times)
+    calculateResponseTime(timestamp) {
+        // This would require tracking when each question started
+        // For now, return empty or implement timing logic
+        return ''; // or implement actual response time calculation
+    },
+    
+    // Show next screen based on mode
+    showNextScreen() {
+        if (GameState.currentMode === 'demo') {
+            // After demo, go back to home
+            setTimeout(() => {
+                GameState.goHome();
+            }, 1000);
+        } else if (GameState.currentMode === 'phase2') {
+            // After Phase II, go back to home
+            setTimeout(() => {
+                GameState.goHome();
+            }, 1000);
+        } else {
+            // After pretest, go to training screen
+            setTimeout(() => {
+                Game.showTraining();
+            }, 1000);
+        }
+    },
+    
+    // Keep this method in case you want to show results sometimes
     createBreakdown() {
         let breakdown = "";
         GameState.results.forEach(result => {
