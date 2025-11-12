@@ -1,25 +1,32 @@
 // Global game state management
 const GameState = {
     allImages: [],
-    setBImages: [], // For Phase II
+    setBImages: [],
     demoImages: [],
     currentImages: [],
     currentIndex: 0,
     results: [],
     gameStartTime: new Date(),
-    currentMode: 'comparison', // 'comparison', 'demo', or 'phase2'
+    currentMode: 'comparison',
     questionsPerGame: 15,
     demoTrials: 5,
-    waitingForNextTrial: false, // NEW: Prevents multiple votes and controls progression
+    waitingForNextTrial: false,
     
     // DOM element references
     elements: {
         landingOverlay: null,
+        participantOverlay: null,
+        participantInput: null,
+        participantSubmitBtn: null,
+        participantError: null,
+        participantInfo: null,
+        participantDisplay: null,
         trainingOverlay: null,
         demoBtn: null,
         startBtn: null,
         trainingHomeBtn: null,
         phase2Btn: null,
+        newParticipantBtn: null,
         progressComparison: null,
         comparisonOverlay: null,
         resultsOverlay: null,
@@ -40,11 +47,18 @@ const GameState = {
     // Initialize DOM references
     initElements() {
         this.elements.landingOverlay = document.getElementById("landing-overlay");
+        this.elements.participantOverlay = document.getElementById("participant-overlay");
+        this.elements.participantInput = document.getElementById("participant-id-input");
+        this.elements.participantSubmitBtn = document.getElementById("participant-submit-btn");
+        this.elements.participantError = document.getElementById("participant-error");
+        this.elements.participantInfo = document.getElementById("participant-info");
+        this.elements.participantDisplay = document.getElementById("participant-display");
         this.elements.trainingOverlay = document.getElementById("training-overlay");
         this.elements.demoBtn = document.getElementById("demo-btn");
         this.elements.startBtn = document.getElementById("start-btn");
         this.elements.trainingHomeBtn = document.getElementById("training-home-btn");
         this.elements.phase2Btn = document.getElementById("phase2-btn");
+        this.elements.newParticipantBtn = document.getElementById("new-participant-btn");
         this.elements.progressComparison = document.getElementById("progress-comparison");
         this.elements.comparisonOverlay = document.getElementById("comparison-overlay");
         this.elements.resultsOverlay = document.getElementById("results");
@@ -109,23 +123,23 @@ const GameState = {
     
     // Switch between game modes
     switchMode(newMode) {
-    if (newMode === this.currentMode) return;
-    
-    this.currentMode = newMode;
-    
-    // Update body class for CSS
-    if (newMode === 'demo') {
-        document.body.className = 'demo-mode';
-    } else if (newMode === 'phase2') {
-        document.body.className = 'phase2-mode';
-    } else if (newMode === 'training') {
-        document.body.className = 'training-mode';
-    } else {
-        document.body.className = '';
-    }
-    
-    console.log("Switched to mode:", newMode);
-},
+        if (newMode === this.currentMode) return;
+        
+        this.currentMode = newMode;
+        
+        // Update body class for CSS
+        if (newMode === 'demo') {
+            document.body.className = 'demo-mode';
+        } else if (newMode === 'phase2') {
+            document.body.className = 'phase2-mode';
+        } else if (newMode === 'training') {
+            document.body.className = 'training-mode';
+        } else {
+            document.body.className = '';
+        }
+        
+        console.log("Switched to mode:", newMode);
+    },
     
     // Go back to home page
     goHome() {
@@ -140,6 +154,7 @@ const GameState = {
         this.elements.instructions.classList.remove("show");
         this.elements.webcamContainer.classList.add("hidden");
         this.elements.webcamToggle.style.display = "none";
+        this.elements.participantInfo.style.display = "none";
         
         // Show landing page
         this.elements.landingOverlay.style.display = "flex";

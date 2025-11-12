@@ -173,9 +173,12 @@ const ComparisonMode = {
         
         // Check if we've reached the end
         if (GameState.currentIndex + 1 >= GameState.currentImages.length) {
+            // STORE THE MODE BEFORE THE TIMEOUT - this is the fix!
+            const completedMode = GameState.currentMode;
+            
             // If at end, show results after a delay (no thumbs up or space needed)
             setTimeout(() => {
-                Results.show();
+                Results.show(completedMode);
             }, 2500);
         }
         // Otherwise, wait for thumbs up gesture or space bar to load next image

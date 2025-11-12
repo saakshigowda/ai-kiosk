@@ -110,6 +110,110 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
 
+        /* Participant ID Entry Screen */
+        .participant-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 400;
+        }
+
+        .participant-content {
+            text-align: center;
+            max-width: 500px;
+            padding: 3rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .participant-title {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .participant-description {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        .participant-input {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.5rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .participant-input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 20px rgba(52, 152, 219, 0.5);
+        }
+
+        .participant-submit-btn {
+            padding: 1.2rem 3rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 15px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            background: #3498db;
+            text-transform: uppercase;
+        }
+
+        .participant-submit-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .participant-submit-btn:disabled {
+            background: #7f8c8d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .participant-error {
+            color: #e74c3c;
+            font-size: 1.2rem;
+            margin-top: 1rem;
+            font-weight: bold;
+        }
+
+        .participant-info {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            z-index: 1000;
+            font-size: 1rem;
+        }
+
+        .participant-info strong {
+            color: #3498db;
+        }
+
         /* Training Screen */
         .training-overlay {
             display: none;
@@ -157,7 +261,7 @@
             flex-wrap: wrap;
         }
 
-        .phase2-btn {
+        .phase2-btn, .new-participant-btn {
             padding: 1.5rem 4rem;
             font-size: 2rem;
             font-weight: bold;
@@ -169,11 +273,24 @@
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
             text-transform: uppercase;
             letter-spacing: 1px;
+        }
+
+        .phase2-btn {
             background: #8e44ad;
         }
 
         .phase2-btn:hover {
             background: #9b59b6;
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .new-participant-btn {
+            background: #e67e22;
+        }
+
+        .new-participant-btn:hover {
+            background: #d35400;
             transform: translateY(-3px);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
@@ -381,7 +498,7 @@
             height: 100%;
             object-fit: cover;
             border-radius: 8px;
-            transform: scaleX(-1); /* Mirror the video feed */
+            transform: scaleX(-1);
         }
 
         .webcam-feed.hidden {
@@ -519,17 +636,46 @@
 </head>
 <body>
 
+    <!-- Participant Info Display (shown during game) -->
+    <div class="participant-info" id="participant-info" style="display: none;">
+        Participant: <strong id="participant-display">---</strong>
+    </div>
+
     <!-- Landing Page -->
     <div class="landing-overlay" id="landing-overlay">
         <div class="landing-content">
             <div class="landing-title">🤖 AI Face Detection</div>
             <div class="landing-subtitle">Can you tell real from artificial?</div>
             <div class="landing-description">
-                Welcome to the AI Face Detection Challenge! You'll be shown pairs of face images - one real photograph and one AI-generated. Your task is to identify which face belongs to a real person. Test your ability to spot the difference between human and artificial faces.
+                Welcome to the AI Face Detection Pretest! You'll be shown pairs of face images - one real photograph and one AI-generated. Your task is to identify which face belongs to a real person. Test your ability to spot the difference between human and artificial faces.
             </div>
             <div class="landing-buttons">
                 <button class="demo-btn" id="demo-btn">🐕 Try Demo</button>
-                <button class="start-btn" id="start-btn">🚀 Start Phase I</button>
+                <button class="start-btn" id="start-btn">🚀 Start Pretest</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Participant ID Entry Screen -->
+    <div class="participant-overlay" id="participant-overlay" style="display: none;">
+        <div class="participant-content">
+            <div class="participant-title">🆔 Enter Participant ID</div>
+            <div class="participant-description">
+                Please enter a unique participant ID.<br>
+                This will be used to track all responses across all phases.
+            </div>
+            <input 
+                type="text" 
+                id="participant-id-input" 
+                class="participant-input" 
+                placeholder="e.g., P001, Participant_01"
+                maxlength="50"
+            />
+            <button class="participant-submit-btn" id="participant-submit-btn">
+                Continue →
+            </button>
+            <div class="participant-error" id="participant-error" style="display: none;">
+                Please enter a participant ID
             </div>
         </div>
     </div>
@@ -539,7 +685,7 @@
         <div class="training-content">
             <div class="training-title">🎓 Training Complete!</div>
             <div class="training-description">
-                Great job completing Phase I! You've now had practice distinguishing between real and AI-generated faces. 
+                Great job completing the pretest! You've now had practice distinguishing between real and AI-generated faces. 
                 <br><br>
                 In the training phase, you would typically receive additional instruction and feedback to improve your detection skills. For now, you can proceed to Phase II to continue testing your abilities with a new set of face images.
                 <br><br>
@@ -548,6 +694,7 @@
             <div class="training-buttons">
                 <button class="home-btn" id="training-home-btn">🏠 Home</button>
                 <button class="phase2-btn" id="phase2-btn">🚀 Next: Phase II</button>
+                <button class="new-participant-btn" id="new-participant-btn">👤 New Participant</button>
             </div>
         </div>
     </div>

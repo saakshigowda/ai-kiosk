@@ -1,5 +1,7 @@
 // Main game controller and initialization
 const Game = {
+    targetMode: null, // Store which mode we're heading to
+    
     // Initialize the entire game
     async init() {
         console.log("Initializing AI Face Detection Challenge...");
@@ -44,13 +46,85 @@ const Game = {
         console.log("Game initialized successfully!");
     },
     
+    // Show participant ID entry screen
+    showParticipantScreen(targetMode) {
+        console.log("Showing participant ID screen...");
+        
+        // Store which mode we're heading to
+        this.targetMode = targetMode;
+        
+        // Hide landing, show participant screen
+        GameState.elements.landingOverlay.style.display = "none";
+        GameState.elements.participantOverlay.style.display = "flex";
+        GameState.elements.participantError.style.display = "none";
+        
+        // Focus on input
+        GameState.elements.participantInput.value = '';
+        GameState.elements.participantInput.focus();
+    },
+    
+    // Handle participant ID submission
+    submitParticipantId() {
+        const participantId = GameState.elements.participantInput.value.trim();
+        
+        if (!participantId) {
+            GameState.elements.participantError.style.display = "block";
+            GameState.elements.participantError.textContent = "Please enter a participant ID";
+            return;
+        }
+        
+        // Validate participant ID (letters, numbers, underscores, hyphens only)
+        const validPattern = /^[a-zA-Z0-9_-]+$/;
+        if (!validPattern.test(participantId)) {
+            GameState.elements.participantError.style.display = "block";
+            GameState.elements.participantError.textContent = "Only letters, numbers, underscores and hyphens allowed";
+            return;
+        }
+        
+        // Set the participant ID in ApiClient
+        ApiClient.setParticipantId(participantId);
+        
+        // Show participant info display
+        GameState.elements.participantInfo.style.display = "block";
+        
+        // Hide participant screen
+        GameState.elements.participantOverlay.style.display = "none";
+        
+        // Start the target mode
+        switch(this.targetMode) {
+            case 'demo':
+                this.startDemo();
+                break;
+            case 'pretest':
+                this.startPretest();
+                break;
+            case 'phase2':
+                this.startPhase2();
+                break;
+        }
+    },
+    
+    // Reset participant (for new participant)
+    resetParticipant() {
+        console.log("Resetting participant...");
+        
+        // Clear participant ID
+        ApiClient.clearParticipantId();
+        
+        // Hide participant info
+        GameState.elements.participantInfo.style.display = "none";
+        
+        // Go to home screen
+        GameState.goHome();
+    },
+    
     // Start the pretest
     async startPretest() {
         console.log("Starting pretest...");
         
         // Start new session with backend (don't fail if backend is down)
         try {
-            await ApiClient.startSession();
+            await ApiClient.startSession('pretest');
         } catch (error) {
             console.log("Session start failed, continuing in offline mode");
         }
@@ -62,6 +136,7 @@ const Game = {
         GameState.elements.instructions.classList.add("show");
         GameState.elements.webcamContainer.classList.remove("hidden");
         GameState.elements.webcamToggle.style.display = "block";
+        GameState.elements.participantInfo.style.display = "block";
         
         GameState.reset();
         GameState.currentImages = ImageLoader.createComparisonPairs(GameState.questionsPerGame);
@@ -75,7 +150,7 @@ const Game = {
         
         // Start new session with backend (don't fail if backend is down)
         try {
-            await ApiClient.startSession();
+            await ApiClient.startSession('demo');
         } catch (error) {
             console.log("Session start failed, continuing in offline mode");
         }
@@ -87,6 +162,7 @@ const Game = {
         GameState.elements.instructions.classList.add("show");
         GameState.elements.webcamContainer.classList.remove("hidden");
         GameState.elements.webcamToggle.style.display = "block";
+        GameState.elements.participantInfo.style.display = "block";
         
         GameState.reset();
         GameState.currentImages = ImageLoader.createDemoPairs(GameState.demoTrials);
@@ -100,7 +176,7 @@ const Game = {
         
         // Start new session with backend (don't fail if backend is down)
         try {
-            await ApiClient.startSession();
+            await ApiClient.startSession('phase2');
         } catch (error) {
             console.log("Session start failed, continuing in offline mode");
         }
@@ -112,6 +188,7 @@ const Game = {
         GameState.elements.instructions.classList.add("show");
         GameState.elements.webcamContainer.classList.remove("hidden");
         GameState.elements.webcamToggle.style.display = "block";
+        GameState.elements.participantInfo.style.display = "block";
         
         GameState.reset();
         GameState.currentImages = ImageLoader.createPhase2Pairs(GameState.questionsPerGame);
@@ -131,7 +208,7 @@ const Game = {
         GameState.elements.webcamContainer.classList.add("hidden");
         GameState.elements.webcamToggle.style.display = "none";
         
-        // Show training screen
+        // Show training screen (keep participant info visible)
         GameState.elements.trainingOverlay.style.display = "flex";
     },
     
@@ -166,22 +243,26 @@ const Game = {
     setupEventListeners() {
         console.log("Setting up event listeners...");
         
-        // Landing page buttons - wrapped in async
-        GameState.elements.demoBtn.addEventListener("click", async () => {
+        // Landing page buttons - show participant screen first
+        GameState.elements.demoBtn.addEventListener("click", () => {
             console.log("Demo button clicked!");
-            try {
-                await this.startDemo();
-            } catch (error) {
-                console.error("Error starting demo:", error);
-            }
+            this.showParticipantScreen('demo');
         });
         
-        GameState.elements.startBtn.addEventListener("click", async () => {
+        GameState.elements.startBtn.addEventListener("click", () => {
             console.log("Start button clicked!");
-            try {
-                await this.startPretest();
-            } catch (error) {
-                console.error("Error starting pretest:", error);
+            this.showParticipantScreen('pretest');
+        });
+        
+        // Participant ID submission
+        GameState.elements.participantSubmitBtn.addEventListener("click", () => {
+            this.submitParticipantId();
+        });
+        
+        // Allow Enter key to submit participant ID
+        GameState.elements.participantInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                this.submitParticipantId();
             }
         });
         
@@ -195,6 +276,12 @@ const Game = {
             } catch (error) {
                 console.error("Error starting Phase II:", error);
             }
+        });
+        
+        // New Participant button
+        GameState.elements.newParticipantBtn.addEventListener("click", () => {
+            console.log("New Participant button clicked!");
+            this.resetParticipant();
         });
         
         // Comparison mode voting

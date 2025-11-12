@@ -1,16 +1,51 @@
 // API client for communicating with Flask backend
 const ApiClient = {
-    baseUrl: 'http://localhost:5000/api', // Flask backend URL
+    baseUrl: 'http://localhost:5000/api',
     currentSession: null,
+    participantId: null, // Store manually entered participant ID
     
-    // Start a new session and get user ID
-    async startSession() {
+    // Set participant ID manually
+    setParticipantId(id) {
+        this.participantId = id;
+        console.log('Participant ID set:', id);
+        
+        // Update display if element exists
+        const displayElement = document.getElementById('participant-display');
+        if (displayElement) {
+            displayElement.textContent = id;
+        }
+    },
+    
+    // Get current participant ID
+    getParticipantId() {
+        return this.participantId;
+    },
+    
+    // Clear participant ID (for new participant)
+    clearParticipantId() {
+        this.participantId = null;
+        this.currentSession = null;
+        console.log('Participant ID cleared');
+        
+        // Update display
+        const displayElement = document.getElementById('participant-display');
+        if (displayElement) {
+            displayElement.textContent = '---';
+        }
+    },
+    
+    // Start a new session (uses manual participant ID)
+    async startSession(mode) {
         try {
+            // Use the manually entered participant ID
+            const userId = this.participantId || 'unknown_' + Date.now();
+            
             const response = await fetch(`${this.baseUrl}/start-session`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
-                }
+                },
+                body: JSON.stringify({ userId: userId })
             });
             
             if (!response.ok) {
@@ -18,22 +53,25 @@ const ApiClient = {
             }
             
             const data = await response.json();
+            
             this.currentSession = {
-                userId: data.userId,
+                userId: userId,
                 sessionTimestamp: data.sessionTimestamp,
-                startTime: Date.now()
+                startTime: Date.now(),
+                mode: mode
             };
             
-            console.log('Session started:', this.currentSession.userId);
+            console.log(`Session started for ${mode}:`, this.currentSession.userId);
             return this.currentSession;
             
         } catch (error) {
             console.error('Failed to start session:', error);
-            // Fallback to local session if server is unavailable
+            const userId = this.participantId || 'offline_' + Date.now();
             this.currentSession = {
-                userId: 'local_' + Date.now(),
+                userId: userId,
                 sessionTimestamp: new Date().toISOString(),
                 startTime: Date.now(),
+                mode: mode,
                 offline: true
             };
             console.log('Using offline session:', this.currentSession.userId);
@@ -48,7 +86,6 @@ const ApiClient = {
             return false;
         }
         
-        // If offline, store locally
         if (this.currentSession.offline) {
             console.log('Offline mode - trial data:', trialData);
             return true;
