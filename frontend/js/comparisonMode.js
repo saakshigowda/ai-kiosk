@@ -1,11 +1,16 @@
 // Side-by-side comparison mode game logic
 const ComparisonMode = {
+    trialStartTime: null, // Track when trial starts
+    
     // Load images for comparison mode
     load() {
         if (GameState.currentIndex >= GameState.currentImages.length) {
             console.error("No more pairs to load");
             return;
         }
+        
+        // Record trial start time
+        this.trialStartTime = Date.now();
         
         Feedback.resetComparison();
         
@@ -80,7 +85,7 @@ const ComparisonMode = {
     },
     
     // Handle user vote in comparison mode
-    vote(chooseA) {
+    async vote(chooseA) {
         // Prevent multiple votes
         if (GameState.waitingForNextTrial) {
             console.log("Already voted, waiting for next trial");
@@ -88,6 +93,9 @@ const ComparisonMode = {
         }
         
         console.log("Comparison mode vote received:", chooseA ? "A" : "B");
+        
+        // Calculate response time
+        const responseTime = Date.now() - this.trialStartTime;
         
         // Set waiting state to prevent multiple votes
         GameState.waitingForNextTrial = true;
@@ -100,11 +108,16 @@ const ComparisonMode = {
         }
         
         const currentPair = GameState.currentImages[GameState.currentIndex];
-        let userChoseCorrect, selectedImage, actualChoice;
+        let userChoseCorrect, selectedImage, actualChoice, leftImage, rightImage, correctSide;
         
         if (GameState.currentMode === 'demo') {
             // Demo mode: User is correct if they choose the dog
             userChoseCorrect = (chooseA && currentPair.dogInA) || (!chooseA && !currentPair.dogInA);
+            
+            // Determine which images are on left (A) and right (B)
+            leftImage = currentPair.dogInA ? currentPair.dogImage.file : currentPair.catImage.file;
+            rightImage = currentPair.dogInA ? currentPair.catImage.file : currentPair.dogImage.file;
+            correctSide = currentPair.dogInA ? 'left' : 'right';
             
             selectedImage = chooseA ? 
                 (currentPair.dogInA ? currentPair.dogImage : currentPair.catImage) :
@@ -118,6 +131,11 @@ const ComparisonMode = {
         } else {
             // Pretest and Phase II modes: User is correct if they choose the real image
             userChoseCorrect = (chooseA && currentPair.realInA) || (!chooseA && !currentPair.realInA);
+            
+            // Determine which images are on left (A) and right (B)
+            leftImage = currentPair.realInA ? currentPair.realImage.file : currentPair.aiImage.file;
+            rightImage = currentPair.realInA ? currentPair.aiImage.file : currentPair.realImage.file;
+            correctSide = currentPair.realInA ? 'left' : 'right';
             
             selectedImage = chooseA ? 
                 (currentPair.realInA ? currentPair.realImage : currentPair.aiImage) :
@@ -137,7 +155,21 @@ const ComparisonMode = {
             Feedback.showComparison(userChoseCorrect, currentPair.realInA, chooseA);
         }
         
+        // Record result in game state (for local tracking)
         GameState.recordResult(selectedImage, actualChoice, userChoseCorrect, currentPair);
+        
+        // Save to backend API
+        const userChoiceSide = chooseA ? 'left' : 'right';
+        await ApiClient.saveTrial({
+            mode: GameState.currentMode,
+            trialNumber: GameState.currentIndex + 1,
+            leftImage: leftImage,
+            rightImage: rightImage,
+            userChoice: userChoiceSide,
+            correctAnswer: correctSide,
+            isCorrect: userChoseCorrect,
+            responseTimeMs: responseTime
+        });
         
         // Check if we've reached the end
         if (GameState.currentIndex + 1 >= GameState.currentImages.length) {

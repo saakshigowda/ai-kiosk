@@ -1,0 +1,11 @@
+user_id,session_timestamp,trial_number,left_image,right_image,user_choice,correct_answer,is_correct,response_time_ms,timestamp
+19ddb79b-c346-4a22-b1a6-7b1f0c03efcf,2025-11-12T22:07:37.420846,1,dog2.jpg,cat4.jpg,left,left,TRUE,8945,2025-11-12T22:07:46.382Z
+19ddb79b-c346-4a22-b1a6-7b1f0c03efcf,2025-11-12T22:07:37.420846,2,dog4.jpg,cat2.jpg,right,left,FALSE,816,2025-11-12T22:07:54.540Z
+19ddb79b-c346-4a22-b1a6-7b1f0c03efcf,2025-11-12T22:07:37.420846,3,dog3.jpg,cat3.jpg,right,left,FALSE,3962,2025-11-12T22:08:00.205Z
+19ddb79b-c346-4a22-b1a6-7b1f0c03efcf,2025-11-12T22:07:37.420846,4,dog5.jpg,cat1.jpg,right,left,FALSE,594,2025-11-12T22:08:00.978Z
+19ddb79b-c346-4a22-b1a6-7b1f0c03efcf,2025-11-12T22:07:37.420846,5,cat5.jpg,dog1.jpg,right,right,TRUE,559,2025-11-12T22:08:01.539Z
+167cff0d-1e0f-435c-9458-5d6479aad03c,2025-11-12T22:10:30.177585,1,dog4.jpg,cat3.jpg,right,left,FALSE,880,2025-11-12T22:10:31.070Z
+167cff0d-1e0f-435c-9458-5d6479aad03c,2025-11-12T22:10:30.177585,2,dog3.jpg,cat2.jpg,right,left,FALSE,474,2025-11-12T22:10:32.671Z
+167cff0d-1e0f-435c-9458-5d6479aad03c,2025-11-12T22:10:30.177585,3,cat1.jpg,dog1.jpg,right,right,TRUE,399,2025-11-12T22:10:33.246Z
+167cff0d-1e0f-435c-9458-5d6479aad03c,2025-11-12T22:10:30.177585,4,cat5.jpg,dog2.jpg,right,right,TRUE,368,2025-11-12T22:10:33.805Z
+167cff0d-1e0f-435c-9458-5d6479aad03c,2025-11-12T22:10:30.177585,5,dog5.jpg,cat4.jpg,right,left,FALSE,520,2025-11-12T22:10:34.493Z

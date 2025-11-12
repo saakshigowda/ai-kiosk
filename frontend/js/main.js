@@ -27,6 +27,13 @@ const Game = {
         this.setupEventListeners();
         ImageLoader.setupErrorHandlers();
         
+        // Check backend connection (don't fail if offline)
+        try {
+            await ApiClient.checkHealth();
+        } catch (error) {
+            console.log("Backend check failed, continuing anyway");
+        }
+        
         // Initialize webcam (async, non-blocking)
         try {
             await Webcam.init();
@@ -38,8 +45,15 @@ const Game = {
     },
     
     // Start the pretest
-    startPretest() {
+    async startPretest() {
         console.log("Starting pretest...");
+        
+        // Start new session with backend (don't fail if backend is down)
+        try {
+            await ApiClient.startSession();
+        } catch (error) {
+            console.log("Session start failed, continuing in offline mode");
+        }
         
         GameState.switchMode('comparison');
         
@@ -56,8 +70,15 @@ const Game = {
     },
 
     // Start the demo
-    startDemo() {
+    async startDemo() {
         console.log("Starting demo...");
+        
+        // Start new session with backend (don't fail if backend is down)
+        try {
+            await ApiClient.startSession();
+        } catch (error) {
+            console.log("Session start failed, continuing in offline mode");
+        }
         
         GameState.switchMode('demo');
         
@@ -74,8 +95,15 @@ const Game = {
     },
 
     // Start Phase II
-    startPhase2() {
+    async startPhase2() {
         console.log("Starting Phase II...");
+        
+        // Start new session with backend (don't fail if backend is down)
+        try {
+            await ApiClient.startSession();
+        } catch (error) {
+            console.log("Session start failed, continuing in offline mode");
+        }
         
         GameState.switchMode('phase2');
         
@@ -138,13 +166,36 @@ const Game = {
     setupEventListeners() {
         console.log("Setting up event listeners...");
         
-        // Landing page buttons
-        GameState.elements.demoBtn.addEventListener("click", () => this.startDemo());
-        GameState.elements.startBtn.addEventListener("click", () => this.startPretest());
+        // Landing page buttons - wrapped in async
+        GameState.elements.demoBtn.addEventListener("click", async () => {
+            console.log("Demo button clicked!");
+            try {
+                await this.startDemo();
+            } catch (error) {
+                console.error("Error starting demo:", error);
+            }
+        });
+        
+        GameState.elements.startBtn.addEventListener("click", async () => {
+            console.log("Start button clicked!");
+            try {
+                await this.startPretest();
+            } catch (error) {
+                console.error("Error starting pretest:", error);
+            }
+        });
         
         // Training screen buttons
         GameState.elements.trainingHomeBtn.addEventListener("click", () => this.goHome());
-        GameState.elements.phase2Btn.addEventListener("click", () => this.startPhase2());
+        
+        GameState.elements.phase2Btn.addEventListener("click", async () => {
+            console.log("Phase 2 button clicked!");
+            try {
+                await this.startPhase2();
+            } catch (error) {
+                console.error("Error starting Phase II:", error);
+            }
+        });
         
         // Comparison mode voting
         GameState.elements.optionA.addEventListener("click", () => {
@@ -203,7 +254,7 @@ const Game = {
         if (GameState.elements.webcamToggle && GameState.elements.webcamContainer) {
             GameState.elements.webcamToggle.addEventListener('click', () => {
                 GameState.elements.webcamContainer.classList.toggle('hidden');
-                GameState.elements.webcamToggle.textContent = GameState.elements.webcamContainer.classList.contains('hidden') ? 'ðŸ"¹ Show Camera' : 'ðŸ"¹ Hide Camera';
+                GameState.elements.webcamToggle.textContent = GameState.elements.webcamContainer.classList.contains('hidden') ? 'Show Camera' : 'Hide Camera';
             });
         }
         
