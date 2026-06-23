@@ -2,18 +2,26 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>AI Face Detection Pretest</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FaceOrFake</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            /* Base font size scales with viewport */
+            font-size: clamp(10px, 1.2vw, 16px);
+        }
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #fff;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
             background: #000;
+            color: #fff;
             min-height: 100vh;
             user-select: none;
             overflow: hidden;
@@ -37,55 +45,60 @@
             align-items: center;
             justify-content: center;
             z-index: 300;
+            overflow-y: auto;
+            padding: 2vh 0;
         }
 
         .landing-content {
             text-align: center;
-            max-width: 600px;
-            padding: 2rem;
+            width: 70vw;
+            max-width: 900px;
+            min-width: 300px;
+            padding: clamp(1rem, 2.5vw, 2rem);
+            max-height: 95vh;
         }
 
         .landing-title {
-            font-size: 4rem;
+            font-size: clamp(1.8rem, 4.5vw, 3rem);
             font-weight: bold;
             margin-bottom: 1rem;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .landing-subtitle {
-            font-size: 1.5rem;
-            margin-bottom: 2rem;
+            font-size: clamp(1rem, 2.2vw, 1.5rem);
+            margin-bottom: 1.5rem;
             opacity: 0.9;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
         }
 
         .landing-description {
-            font-size: 1.2rem;
-            margin-bottom: 3rem;
+            font-size: clamp(1rem, 2vw, 1.3rem);
+            margin-bottom: 1.5rem;
             line-height: 1.6;
             background: rgba(0, 0, 0, 0.3);
-            padding: 1.5rem;
-            border-radius: 15px;
+            padding: clamp(1rem, 2vw, 1.5rem);
+            border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .landing-buttons {
             display: flex;
-            gap: 2rem;
+            gap: clamp(0.8rem, 2vw, 1.5rem);
             justify-content: center;
             flex-wrap: wrap;
         }
 
         .demo-btn, .start-btn {
-            padding: 1.5rem 4rem;
-            font-size: 2rem;
+            padding: clamp(0.7rem, 1.5vw, 1.2rem) clamp(1.5rem, 3vw, 3rem);
+            font-size: clamp(0.9rem, 2vw, 1.5rem);
             font-weight: bold;
             border: none;
-            border-radius: 20px;
+            border-radius: clamp(10px, 1.5vw, 15px);
             color: white;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
             text-transform: uppercase;
             letter-spacing: 1px;
         }
@@ -126,22 +139,24 @@
 
         .participant-content {
             text-align: center;
-            max-width: 500px;
-            padding: 3rem;
+            width: 70vw;
+            max-width: 900px;
+            min-width: 300px;
+            padding: clamp(2rem, 4vw, 3rem);
             background: rgba(0, 0, 0, 0.3);
-            border-radius: 20px;
+            border-radius: clamp(12px, 2vw, 20px);
             border: 2px solid rgba(255, 255, 255, 0.2);
         }
 
         .participant-title {
-            font-size: 3rem;
+            font-size: clamp(1.8rem, 5vw, 3rem);
             font-weight: bold;
             margin-bottom: 1.5rem;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         .participant-description {
-            font-size: 1.3rem;
+            font-size: clamp(1rem, 2vw, 1.3rem);
             margin-bottom: 2rem;
             line-height: 1.6;
             opacity: 0.9;
@@ -149,8 +164,8 @@
 
         .participant-input {
             width: 100%;
-            padding: 1rem;
-            font-size: 1.5rem;
+            padding: clamp(0.7rem, 1.5vw, 1rem);
+            font-size: clamp(1.1rem, 2.5vw, 1.5rem);
             border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 10px;
             background: rgba(0, 0, 0, 0.5);
@@ -166,11 +181,11 @@
         }
 
         .participant-submit-btn {
-            padding: 1.2rem 3rem;
-            font-size: 1.5rem;
+            padding: clamp(0.8rem, 2vw, 1.2rem) clamp(1.5rem, 4vw, 3rem);
+            font-size: clamp(1.1rem, 2.5vw, 1.5rem);
             font-weight: bold;
             border: none;
-            border-radius: 15px;
+            border-radius: clamp(10px, 1.5vw, 15px);
             color: white;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -200,18 +215,51 @@
 
         .participant-info {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            top: clamp(10px, 2vw, 20px);
+            right: clamp(10px, 2vw, 20px);
             background: rgba(0, 0, 0, 0.7);
-            padding: 0.8rem 1.5rem;
+            padding: clamp(0.5rem, 1vw, 0.8rem) clamp(0.8rem, 2vw, 1.5rem);
             border-radius: 10px;
             border: 2px solid rgba(255, 255, 255, 0.3);
             z-index: 1000;
-            font-size: 1rem;
+            font-size: clamp(0.8rem, 1.5vw, 1rem);
         }
 
         .participant-info strong {
             color: #3498db;
+        }
+
+        /* Dev Navigation Buttons */
+        .dev-nav {
+            position: fixed;
+            top: clamp(10px, 2vw, 20px);
+            left: clamp(10px, 2vw, 20px);
+            display: flex;
+            gap: clamp(5px, 1vw, 10px);
+            z-index: 1000;
+        }
+
+        .dev-nav-btn {
+            padding: clamp(0.2rem, 0.5vw, 0.35rem) clamp(0.5rem, 1vw, 0.8rem);
+            font-size: clamp(0.55rem, 0.9vw, 0.7rem);
+            font-weight: bold;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+        }
+
+        .dev-nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.8);
+            transform: translateY(-2px);
+        }
+
+        .dev-nav.hidden {
+            display: none;
         }
 
         /* Training Screen */
@@ -224,46 +272,49 @@
             height: 100vh;
             background: linear-gradient(180deg, #27ae60 0%, #2ecc71 100%);
             z-index: 300;
+            overflow-y: auto;
+            padding: 2vh 0;
         }
 
         .training-content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            position: relative;
+            margin: auto;
+            margin-top: 5vh;
+            margin-bottom: 5vh;
             text-align: center;
-            max-width: 800px;
-            width: 90%;
+            width: 70vw;
+            max-width: 900px;
+            min-width: 300px;
         }
 
         .training-title {
-            font-size: 4rem;
+            font-size: clamp(1.8rem, 4.5vw, 3rem);
             font-weight: bold;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             color: #fff;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         .training-description {
-            font-size: 1.5rem;
-            margin-bottom: 3rem;
+            font-size: clamp(1rem, 2.2vw, 1.4rem);
+            margin-bottom: 1.5rem;
             line-height: 1.6;
             background: rgba(0, 0, 0, 0.3);
-            padding: 2rem;
-            border-radius: 15px;
+            padding: clamp(1rem, 2.5vw, 1.8rem);
+            border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .training-buttons {
             display: flex;
-            gap: 2rem;
+            gap: clamp(1rem, 2vw, 2rem);
             justify-content: center;
             flex-wrap: wrap;
         }
 
-        .phase2-btn, .new-participant-btn {
-            padding: 1.5rem 4rem;
-            font-size: 2rem;
+        .phase2-btn, .new-participant-btn, .training-start-btn {
+            padding: clamp(1rem, 2vw, 1.5rem) clamp(2rem, 5vw, 4rem);
+            font-size: clamp(1.2rem, 3vw, 2rem);
             font-weight: bold;
             border: none;
             border-radius: 20px;
@@ -273,6 +324,16 @@
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
             text-transform: uppercase;
             letter-spacing: 1px;
+        }
+
+        .training-start-btn {
+            background: #27ae60;
+        }
+
+        .training-start-btn:hover {
+            background: #2ecc71;
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
 
         .phase2-btn {
@@ -308,7 +369,7 @@
 
         .center-overlay {
             position: fixed;
-            top: 5%;
+            top: clamp(10px, 2vw, 20px);
             left: 50%;
             transform: translateX(-50%);
             z-index: 200;
@@ -319,33 +380,48 @@
         .question-display {
             background: rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(20px);
-            padding: 1rem 2rem;
-            border-radius: 15px;
+            padding: clamp(0.6rem, 1.5vw, 1rem) clamp(1rem, 3vw, 2rem);
+            border-radius: clamp(10px, 1.5vw, 15px);
             margin-bottom: 1rem;
             border: 2px solid rgba(255, 255, 255, 0.2);
         }
 
         .question-text {
-            font-size: 1.8rem;
+            font-size: clamp(1.1rem, 3vw, 1.8rem);
             font-weight: 600;
             margin-bottom: 0.5rem;
         }
 
         .progress-text {
-            font-size: 1.2rem;
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
             opacity: 0.8;
+        }
+
+        /* Progress indicator pinned to the top-right corner (below participant info) */
+        .comparison-progress {
+            position: fixed;
+            top: clamp(10px, 2vw, 20px);
+            right: clamp(190px, 16vw, 300px);
+            background: rgba(0, 0, 0, 0.7);
+            padding: clamp(0.4rem, 1vw, 0.7rem) clamp(0.8rem, 2vw, 1.3rem);
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            font-size: clamp(0.9rem, 1.8vw, 1.2rem);
+            font-weight: 600;
+            z-index: 200;
         }
 
         .comparison-content {
             position: absolute;
-            top: 55%;
+            top: 17vh;
             left: 50%;
-            transform: translate(-50%, -50%);
+            transform: translateX(-50%);
             display: flex;
-            gap: 3rem;
+            gap: clamp(1rem, 3vw, 3rem);
             align-items: center;
             justify-content: center;
             width: 100%;
+            padding: 0 clamp(0.5rem, 1.5vw, 1.5rem);
         }
 
         .comparison-option {
@@ -359,20 +435,32 @@
         }
 
         .comparison-image {
-            width: 60vh;
-            height: 60vh;
-            border-radius: 20px;
-            border: 4px solid rgba(255, 255, 255, 0.5);
+            /* Vertical: content starts at 17vh; cap at 54vh so the image bottom
+               (plus label) clears the webcam feed in the bottom-right corner.
+               Horizontal: 44vw so two images + gap fit in 100vw with breathing room. */
+            width: min(58vh, 44vw);
+            height: min(58vh, 44vw);
+            border-radius: clamp(12px, 2vw, 20px);
+            border: clamp(2px, 0.5vw, 4px) solid rgba(255, 255, 255, 0.5);
             object-fit: cover;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
             margin-bottom: 1rem;
         }
 
+        /* Phase II images - show only face (left portion), fill height.
+           Narrower vw cap so two images + the features table still fit across the screen. */
+        .comparison-image.phase2-mode {
+            width: min(58vh, 32vw);
+            height: min(58vh, 32vw);
+            object-fit: cover;
+            object-position: left center;
+        }
+
         .comparison-label {
-            font-size: 2rem;
+            font-size: clamp(1.2rem, 3vw, 2rem);
             font-weight: bold;
             background: rgba(0, 0, 0, 0.7);
-            padding: 0.5rem 1rem;
+            padding: clamp(0.3rem, 0.8vw, 0.5rem) clamp(0.6rem, 1.5vw, 1rem);
             border-radius: 10px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
@@ -395,12 +483,13 @@
             left: 50%;
             transform: translate(-50%, -50%);
             text-align: center;
-            max-width: 600px;
-            width: 90%;
+            width: 60vw;
+            max-width: 800px;
+            min-width: 300px;
         }
 
         .results-title {
-            font-size: 4rem;
+            font-size: clamp(2rem, 6vw, 4rem);
             font-weight: bold;
             margin-bottom: 2rem;
             color: #2ecc71;
@@ -408,21 +497,22 @@
         }
 
         .score-display {
-            font-size: 2.5rem;
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
             margin-bottom: 2rem;
             background: rgba(0, 0, 0, 0.5);
-            padding: 1.5rem;
+            padding: clamp(1rem, 2vw, 1.5rem);
             border-radius: 15px;
         }
 
         .breakdown-display {
             background: rgba(0, 0, 0, 0.3);
-            padding: 1.5rem;
+            padding: clamp(1rem, 2vw, 1.5rem);
             border-radius: 15px;
             margin-bottom: 2rem;
-            max-height: 300px;
+            max-height: min(40vh, 300px);
             overflow-y: auto;
             text-align: left;
+            font-size: clamp(0.85rem, 1.5vw, 1rem);
         }
 
         .results-buttons {
@@ -433,10 +523,10 @@
         }
 
         .home-btn, .restart-btn, .training-btn {
-            padding: 1rem 3rem;
-            font-size: 1.5rem;
+            padding: clamp(0.7rem, 1.5vw, 1rem) clamp(1.5rem, 4vw, 3rem);
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
             border: none;
-            border-radius: 15px;
+            border-radius: clamp(10px, 1.5vw, 15px);
             color: white;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -473,13 +563,127 @@
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
         }
 
+        /* Final Results Screen */
+        .final-results-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            z-index: 250;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .final-results-content {
+            text-align: center;
+            width: min(90vw, 800px);
+            padding: clamp(20px, 3vw, 40px);
+        }
+
+        .final-results-title {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: bold;
+            margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+            color: #f1c40f;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .phase-scores-container {
+            display: flex;
+            justify-content: center;
+            gap: clamp(20px, 4vw, 50px);
+            margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+            flex-wrap: wrap;
+        }
+
+        .phase-score-card {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: clamp(12px, 1.5vw, 20px);
+            padding: clamp(15px, 2.5vw, 30px) clamp(25px, 4vw, 50px);
+            min-width: clamp(140px, 18vw, 200px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .phase1-card {
+            border: 3px solid #3498db;
+        }
+
+        .phase3-card {
+            border: 3px solid #9b59b6;
+        }
+
+        .phase-score-header {
+            font-size: clamp(1rem, 1.8vw, 1.4rem);
+            color: #bdc3c7;
+            margin-bottom: clamp(8px, 1vw, 12px);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .phase-score-value {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: bold;
+            color: white;
+            margin-bottom: clamp(5px, 0.8vw, 10px);
+        }
+
+        .phase-score-percent {
+            font-size: clamp(1.2rem, 2vw, 1.6rem);
+            color: #ecf0f1;
+        }
+
+        .comparison-result {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: clamp(12px, 1.5vw, 20px);
+            padding: clamp(20px, 3vw, 35px);
+            margin-bottom: clamp(1.5rem, 3vw, 2rem);
+        }
+
+        .comparison-result-text {
+            font-size: clamp(1.1rem, 2vw, 1.5rem);
+            color: #ecf0f1;
+            margin-bottom: clamp(8px, 1vw, 12px);
+        }
+
+        .comparison-result-value {
+            font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+            font-weight: bold;
+        }
+
+        .comparison-result-value.improved {
+            color: #2ecc71;
+        }
+
+        .comparison-result-value.declined {
+            color: #e74c3c;
+        }
+
+        .comparison-result-value.same {
+            color: #f1c40f;
+        }
+
+        .final-results-message {
+            font-size: clamp(1rem, 1.8vw, 1.3rem);
+            color: #bdc3c7;
+            margin-bottom: clamp(1.5rem, 3vw, 2rem);
+        }
+
+        .final-results-buttons {
+            display: flex;
+            justify-content: center;
+            gap: clamp(15px, 2vw, 25px);
+        }
+
         /* Webcam feed in corner */
         .webcam-feed {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 200px;
-            height: 150px;
+            bottom: clamp(10px, 2vw, 20px);
+            right: clamp(10px, 2vw, 20px);
+            width: clamp(180px, 22vw, 300px);
+            height: clamp(135px, 16.5vw, 225px);
             border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 10px;
             z-index: 500;
@@ -507,9 +711,9 @@
 
         .webcam-toggle {
             position: fixed;
-            bottom: 180px;
-            right: 20px;
-            padding: 0.5rem 1rem;
+            bottom: clamp(155px, 20vw, 255px);
+            right: clamp(10px, 2vw, 20px);
+            padding: clamp(0.15rem, 0.5vw, 0.3rem) clamp(0.4rem, 1vw, 0.7rem);
             background: rgba(0, 0, 0, 0.7);
             border: 2px solid rgba(255, 255, 255, 0.3);
             color: #fff;
@@ -517,7 +721,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             z-index: 500;
-            font-size: 0.9rem;
+            font-size: clamp(0.55rem, 0.9vw, 0.7rem);
         }
 
         .webcam-toggle:hover {
@@ -532,15 +736,49 @@
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.8);
-            padding: 1rem 2rem;
+            padding: clamp(0.6rem, 1.5vw, 1rem) clamp(1rem, 3vw, 2rem);
             border-radius: 15px;
             z-index: 50;
             border: 1px solid rgba(255, 255, 255, 0.2);
             display: none;
+            font-size: clamp(0.8rem, 1.5vw, 1rem);
+            max-width: 90vw;
+            text-align: center;
+        }
+
+        /* Undo button - shown after a vote so the user can change their selection */
+        .undo-btn {
+            position: fixed;
+            bottom: clamp(5.5rem, 11vh, 8rem);
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            z-index: 250;
+            cursor: pointer;
+            padding: clamp(0.5rem, 1.2vw, 0.8rem) clamp(1rem, 2.5vw, 1.6rem);
+            font-size: clamp(0.85rem, 1.6vw, 1.05rem);
+            font-weight: 600;
+            color: #fff;
+            background: rgba(248, 113, 113, 0.85);
+            border: 2px solid rgba(255, 255, 255, 0.35);
+            border-radius: 999px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
+            transition: transform 0.12s ease, background 0.12s ease;
+        }
+
+        .undo-btn:hover {
+            background: rgba(239, 68, 68, 0.95);
+            transform: translateX(-50%) scale(1.05);
+        }
+
+        .undo-btn.show {
+            display: block;
         }
 
         .instructions.show {
-            display: block;
+            display: none;
         }
 
         /* Feedback animations */
@@ -561,11 +799,154 @@
         }
 
         .feedback-flash.correct {
-            background: #2ecc71;
+            background: #4ade80;
         }
 
         .feedback-flash.incorrect {
-            background: #e74c3c;
+            background: #f87171;
+        }
+
+        /* Training feedback message */
+        .training-feedback-message {
+            position: fixed;
+            bottom: 15vh;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: clamp(12px, 2vw, 25px) clamp(20px, 4vw, 50px);
+            border-radius: clamp(10px, 1.5vw, 20px);
+            font-size: clamp(12px, 1.4vw, 20px);
+            text-align: center;
+            max-width: min(80%, 60vw);
+            z-index: 200;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            box-shadow: 0 min(10px, 1vw) min(30px, 3vw) rgba(0, 0, 0, 0.5);
+        }
+
+        .training-feedback-message.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .training-feedback-message.correct {
+            border: clamp(2px, 0.3vw, 4px) solid #2ecc71;
+        }
+
+        .training-feedback-message.incorrect {
+            border: clamp(2px, 0.3vw, 4px) solid #e74c3c;
+        }
+
+        .training-feedback-message .message-title {
+            font-weight: bold;
+            font-size: clamp(16px, 1.8vw, 28px);
+            margin-bottom: clamp(6px, 0.8vw, 12px);
+        }
+
+        .training-feedback-message.correct .message-title {
+            color: #2ecc71;
+        }
+
+        .training-feedback-message.incorrect .message-title {
+            color: #e74c3c;
+        }
+
+        /* Training features table - only visible in training mode */
+        .training-features-table {
+            display: none;
+            flex-direction: column;
+            height: min(60vh, 40vw, 400px);
+            width: clamp(180px, 22vw, 300px);
+            border-radius: clamp(8px, 1vw, 12px);
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .phase2-mode .training-features-table {
+            display: flex;
+        }
+
+        .training-features-table .table-header {
+            background: #f1c40f;
+            color: #1a1a2e;
+            font-weight: bold;
+            font-size: clamp(8px, 1vw, 14px);
+            text-align: center;
+            padding: clamp(8px, 1.2vw, 15px) clamp(6px, 0.8vw, 10px);
+            line-height: 1.2;
+            flex-shrink: 0;
+        }
+
+        .training-features-table .table-body {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .training-features-table .feature-row {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #68c968;
+            color: #1a1a2e;
+            font-weight: bold;
+            font-size: clamp(10px, 1.2vw, 18px);
+            text-align: center;
+            border-top: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .training-features-table .feature-row:first-child {
+            border-top: none;
+        }
+
+        /* Phase II Instructions overlay styles */
+        .phase2-instructions-overlay {
+            background: linear-gradient(180deg, #16a085 0%, #1abc9c 100%);
+        }
+
+        .phase2-table-preview {
+            display: flex;
+            flex-direction: column;
+            width: clamp(320px, 60%, 550px);
+            margin: 25px auto;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .preview-table-header {
+            background: #f1c40f;
+            color: #1a1a2e;
+            font-weight: bold;
+            font-size: clamp(14px, 2.5vw, 22px);
+            text-align: center;
+            padding: clamp(15px, 3vw, 25px) clamp(10px, 2vw, 20px);
+            line-height: 1.3;
+        }
+
+        .preview-table-body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-feature-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #68c968;
+            color: #1a1a2e;
+            font-weight: bold;
+            font-size: clamp(16px, 3vw, 28px);
+            text-align: center;
+            padding: clamp(15px, 3vw, 25px);
+            border-top: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .preview-feature-row:first-child {
+            border-top: none;
         }
 
         /* Demo mode styling */
@@ -573,68 +954,335 @@
             background: linear-gradient(180deg, #f39c12 0%, #e67e22 100%);
         }
 
-        /* Phase II mode styling */
-        .phase2-mode .comparison-overlay {
+        /* Phase III mode styling */
+        .phase3-mode .comparison-overlay {
             background: linear-gradient(180deg, #8e44ad 0%, #9b59b6 100%);
         }
 
-        /* Mobile responsiveness */
+        /* Mobile responsiveness - additional adjustments for very small screens */
         @media (max-width: 768px) {
-            .landing-title {
-                font-size: 2.5rem;
-            }
-            
-            .landing-subtitle {
-                font-size: 1.2rem;
-            }
-            
-            .landing-description {
-                font-size: 1rem;
-            }
-            
-            .demo-btn, .start-btn, .phase2-btn {
-                padding: 1.2rem 3rem;
-                font-size: 1.5rem;
-            }
-            
-            .landing-buttons, .training-buttons {
+            .landing-buttons, .training-buttons, .results-buttons {
                 flex-direction: column;
                 align-items: center;
+                gap: 1rem;
             }
             
             .comparison-content {
                 flex-direction: column;
-                gap: 2rem;
-                top: 60%;
+                gap: 1.5rem;
+                top: 55%;
             }
             
             .comparison-image {
-                width: 35vh;
-                height: 35vh;
+                width: min(30vh, 80vw);
+                height: min(30vh, 80vw);
             }
-
-            .webcam-feed {
-                width: 150px;
-                height: 112px;
-                bottom: 10px;
-                right: 10px;
+            
+            .center-overlay {
+                top: 3%;
             }
-
-            .webcam-toggle {
-                bottom: 130px;
-                right: 10px;
-                padding: 0.4rem 0.8rem;
-                font-size: 0.8rem;
+            
+            .landing-content,
+            .training-content,
+            .participant-content {
+                width: 90%;
             }
-
-            .results-buttons, .training-buttons {
-                flex-direction: column;
-                align-items: center;
+            
+            .phase2-table-preview {
+                width: 85%;
             }
         }
+        
+        /* Extra small screens */
+        @media (max-width: 480px) {
+            .comparison-image {
+                width: min(28vh, 88vw);
+                height: min(28vh, 88vw);
+            }
+            
+            .landing-buttons, .training-buttons {
+                gap: 0.8rem;
+            }
+            
+            .landing-content,
+            .training-content,
+            .participant-content {
+                width: 95%;
+                padding: 1rem;
+            }
+            
+            .phase2-table-preview {
+                width: 95%;
+            }
+        }
+        
+        /* Large screens / kiosk displays */
+        @media (min-width: 1920px) {
+            :root {
+                font-size: clamp(16px, 1.2vw, 22px);
+            }
+            
+            .landing-content,
+            .training-content,
+            .participant-content {
+                max-width: 1200px;
+            }
+        }
+
+        /* ============================================================
+           SOFT GLASS — DARK THEME
+           Drifting dark aurora + subtle frosted glass panels with
+           neumorphic soft shadows and rounded pill shapes.
+           Appended last so it overrides the base styles above.
+           ============================================================ */
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.09);
+            --glass-bg-chip: rgba(255, 255, 255, 0.07);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --glass-blur: blur(18px) saturate(140%);
+            --glass-shadow: 10px 10px 26px rgba(0, 0, 0, 0.5), -6px -6px 18px rgba(255, 255, 255, 0.05);
+            --ink: #eef1f8;
+            --ink-soft: #aab2c8;
+            --accent: #a5b0ff;
+            --radius: 22px;
+        }
+
+        /* --- Display font for titles, big numbers, question + A/B labels --- */
+        .logo,
+        .landing-title,
+        .landing-subtitle,
+        .participant-title,
+        .training-title,
+        .question-text,
+        .comparison-label,
+        .results-title,
+        .final-results-title,
+        .preview-table-header,
+        .training-features-table .table-header,
+        .phase-score-value,
+        .comparison-result-value {
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            letter-spacing: 0.2px;
+        }
+
+        /* --- Aurora mesh background --- */
+        body {
+            background: #0a0a14;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: -20%;
+            z-index: -1;
+            pointer-events: none;
+            background:
+                radial-gradient(38vw 38vw at 18% 22%, rgba(99, 102, 241, 0.55), transparent 60%),
+                radial-gradient(42vw 42vw at 82% 18%, rgba(168, 85, 247, 0.5), transparent 60%),
+                radial-gradient(46vw 46vw at 62% 88%, rgba(45, 212, 191, 0.42), transparent 62%),
+                radial-gradient(34vw 34vw at 12% 80%, rgba(244, 114, 182, 0.4), transparent 60%);
+            filter: blur(70px);
+            animation: auroraDrift 26s ease-in-out infinite alternate;
+        }
+
+        @keyframes auroraDrift {
+            0%   { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+            50%  { transform: translate3d(-3%, 2%, 0) scale(1.12) rotate(4deg); }
+            100% { transform: translate3d(3%, -2%, 0) scale(1.06) rotate(-3deg); }
+        }
+
+        /* --- Overlays go transparent so the aurora shows through --- */
+        .landing-overlay,
+        .participant-overlay,
+        .training-overlay,
+        .phase2-instructions-overlay,
+        .comparison-overlay,
+        .results-overlay,
+        .final-results-overlay,
+        .demo-mode .comparison-overlay,
+        .phase3-mode .comparison-overlay {
+            background: transparent;
+        }
+
+        /* --- Frosted glass content panels (light, dark text) --- */
+        .landing-description,
+        .participant-content,
+        .training-description,
+        .score-display,
+        .breakdown-display,
+        .comparison-result {
+            background: var(--glass-bg);
+            -webkit-backdrop-filter: var(--glass-blur);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            box-shadow: var(--glass-shadow);
+            color: var(--ink);
+        }
+
+        /* Score cards keep their coloured accent border for phase identity */
+        .phase-score-card {
+            background: var(--glass-bg);
+            -webkit-backdrop-filter: var(--glass-blur);
+            backdrop-filter: var(--glass-blur);
+            box-shadow: var(--glass-shadow);
+            color: var(--ink);
+        }
+        .phase-score-header { color: var(--ink-soft); }
+        .phase-score-value,
+        .phase-score-percent { color: var(--ink); }
+
+        .comparison-result-text { color: var(--ink-soft); }
+        .comparison-result-value.improved { color: #4ade80; }
+        .comparison-result-value.declined { color: #f87171; }
+        .comparison-result-value.same     { color: #fbbf24; }
+
+        /* --- Frosted glass chips (light, dark text) --- */
+        .participant-info,
+        .comparison-progress,
+        .question-display,
+        .comparison-label,
+        .dev-nav-btn,
+        .webcam-toggle {
+            background: var(--glass-bg-chip);
+            -webkit-backdrop-filter: var(--glass-blur);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 999px;
+            box-shadow: var(--glass-shadow);
+            color: var(--ink);
+            text-shadow: none;
+        }
+
+        /* Titles/descriptions sitting inside light panels: drop dark shadows */
+        .participant-title { text-shadow: none; }
+
+        /* Participant-ID card: size to its content instead of the full overlay width */
+        .participant-content {
+            width: min(90vw, 460px);
+            max-width: 460px;
+            min-width: 0;
+            padding: clamp(1.25rem, 3vw, 2rem);
+        }
+        .participant-title { font-size: clamp(1.4rem, 3.2vw, 2rem); margin-bottom: 1rem; }
+        .participant-description { font-size: clamp(0.9rem, 1.8vw, 1.1rem); margin-bottom: 1.25rem; }
+
+        /* Text input on a dark glass panel */
+        .participant-input {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--ink);
+            border: 1px solid var(--glass-border);
+            box-shadow: inset 4px 4px 10px rgba(0, 0, 0, 0.5), inset -3px -3px 9px rgba(255, 255, 255, 0.05);
+        }
+        .participant-input::placeholder { color: rgba(238, 241, 248, 0.45); }
+
+        /* Webcam frame as glass */
+        .webcam-feed {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--glass-border);
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+            box-shadow: var(--glass-shadow);
+        }
+
+        /* --- Buttons: frosted glass pills, one periwinkle accent for primary --- */
+        .demo-btn,
+        .start-btn,
+        .training-start-btn,
+        .phase2-btn,
+        .new-participant-btn,
+        .home-btn,
+        .restart-btn,
+        .training-btn,
+        .participant-submit-btn {
+            background: var(--glass-bg);
+            -webkit-backdrop-filter: var(--glass-blur);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 999px;
+            color: #fff;
+            text-shadow: none;
+            box-shadow: var(--glass-shadow);
+        }
+        /* Primary actions get the accent gradient */
+        .start-btn,
+        .participant-submit-btn,
+        .training-start-btn,
+        .phase2-btn,
+        .training-btn {
+            background: linear-gradient(135deg, rgba(129, 140, 248, 0.92), rgba(139, 124, 255, 0.92));
+            border-color: rgba(255, 255, 255, 0.28);
+        }
+        .demo-btn:hover,
+        .new-participant-btn:hover,
+        .home-btn:hover,
+        .restart-btn:hover {
+            background: rgba(255, 255, 255, 0.16);
+        }
+        .start-btn:hover,
+        .participant-submit-btn:hover,
+        .training-start-btn:hover,
+        .phase2-btn:hover,
+        .training-btn:hover {
+            background: linear-gradient(135deg, rgba(140, 150, 255, 1), rgba(150, 135, 255, 1));
+        }
+        .participant-submit-btn:disabled {
+            background: rgba(255, 255, 255, 0.06);
+            color: rgba(238, 241, 248, 0.4);
+            box-shadow: none;
+        }
+
+        /* --- Glass "Features Indicative of AI" table (legend + in-game) --- */
+        .preview-table-header,
+        .training-features-table .table-header {
+            background: rgba(168, 85, 247, 0.32);
+            -webkit-backdrop-filter: var(--glass-blur);
+            backdrop-filter: var(--glass-blur);
+            color: #ecd9ff;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        .preview-feature-row,
+        .training-features-table .feature-row {
+            background: rgba(255, 255, 255, 0.05);
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
+            color: var(--ink);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .preview-feature-row:first-child,
+        .training-features-table .feature-row:first-child {
+            border-top: none;
+        }
+
+        /* --- A / B label pill shaping (fill + text come from the chip rule above) --- */
+        .comparison-label {
+            padding: clamp(0.3rem, 0.8vw, 0.6rem) clamp(1.1rem, 2.6vw, 1.9rem);
+            letter-spacing: 3px;
+        }
+
+        /* --- Training feedback toast: match the glass theme --- */
+        .training-feedback-message {
+            background: var(--glass-bg);
+            -webkit-backdrop-filter: var(--glass-blur);
+            backdrop-filter: var(--glass-blur);
+            color: var(--ink);
+            border-radius: var(--radius);
+            box-shadow: var(--glass-shadow);
+        }
+        .training-feedback-message.correct   { border: 2px solid rgba(74, 222, 128, 0.8); }
+        .training-feedback-message.incorrect { border: 2px solid rgba(248, 113, 113, 0.8); }
+        .training-feedback-message.correct .message-title   { color: #4ade80; }
+        .training-feedback-message.incorrect .message-title { color: #f87171; }
     </style>
 </head>
 <body>
+
+    <!-- Dev Navigation Buttons -->
+    <div class="dev-nav hidden" id="dev-nav">
+        <button class="dev-nav-btn" id="dev-back-btn" style="display: none;">Back</button>
+        <button class="dev-nav-btn" id="dev-home-btn" style="display: none;">Home</button>
+        <button class="dev-nav-btn" id="dev-next-btn" style="display: none;">Next</button>
+    </div>
 
     <!-- Participant Info Display (shown during game) -->
     <div class="participant-info" id="participant-info" style="display: none;">
@@ -644,14 +1292,14 @@
     <!-- Landing Page -->
     <div class="landing-overlay" id="landing-overlay">
         <div class="landing-content">
-            <div class="landing-title">🤖 AI Face Detection</div>
+            <div class="landing-title">FaceOrFake</div>
             <div class="landing-subtitle">Can you tell real from artificial?</div>
             <div class="landing-description">
-                Welcome to the AI Face Detection Pretest! You'll be shown pairs of face images - one real photograph and one AI-generated. Your task is to identify which face belongs to a real person. Test your ability to spot the difference between human and artificial faces.
+                This experiment tests your ability to distinguish real photographs from AI-generated faces. You'll complete three phases: <strong>Phase I</strong> (baseline assessment), <strong>Phase II</strong> (learn with feedback), and <strong>Phase III</strong> (final test). Use hand gestures or click to vote, then confirm with thumbs up. Ready to challenge your perception?
             </div>
             <div class="landing-buttons">
-                <button class="demo-btn" id="demo-btn">🐕 Try Demo</button>
-                <button class="start-btn" id="start-btn">🚀 Start Pretest</button>
+                <button class="demo-btn" id="demo-btn">Try Demo</button>
+                <button class="start-btn" id="start-btn">Start Phase I</button>
             </div>
         </div>
     </div>
@@ -659,7 +1307,7 @@
     <!-- Participant ID Entry Screen -->
     <div class="participant-overlay" id="participant-overlay" style="display: none;">
         <div class="participant-content">
-            <div class="participant-title">🆔 Enter Participant ID</div>
+            <div class="participant-title">Enter Participant ID</div>
             <div class="participant-description">
                 Please enter a unique participant ID.<br>
                 This will be used to track all responses across all phases.
@@ -672,7 +1320,7 @@
                 maxlength="50"
             />
             <button class="participant-submit-btn" id="participant-submit-btn">
-                Continue →
+                Continue
             </button>
             <div class="participant-error" id="participant-error" style="display: none;">
                 Please enter a participant ID
@@ -680,21 +1328,115 @@
         </div>
     </div>
 
-    <!-- Training Screen -->
-    <div class="training-overlay" id="training-overlay">
+    <!-- Phase II Screen (shown after Phase II images complete) -->
+    <div class="training-overlay" id="training-overlay" style="display: none;">
         <div class="training-content">
-            <div class="training-title">🎓 Training Complete!</div>
+            <div class="training-title">Phase II Information</div>
             <div class="training-description">
-                Great job completing the pretest! You've now had practice distinguishing between real and AI-generated faces. 
-                <br><br>
-                In the training phase, you would typically receive additional instruction and feedback to improve your detection skills. For now, you can proceed to Phase II to continue testing your abilities with a new set of face images.
-                <br><br>
-                Phase II will use a different set of images to further test your AI detection skills.
+                This is the Phase II information screen. You can navigate from here.
             </div>
             <div class="training-buttons">
-                <button class="home-btn" id="training-home-btn">🏠 Home</button>
-                <button class="phase2-btn" id="phase2-btn">🚀 Next: Phase II</button>
-                <button class="new-participant-btn" id="new-participant-btn">👤 New Participant</button>
+                <button class="home-btn" id="training-home-btn">Home</button>
+                <button class="new-participant-btn" id="new-participant-btn">New Participant</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phase 1 Complete Screen -->
+    <div class="training-overlay" id="phase1-complete-overlay" style="display: none;">
+        <div class="training-content">
+            <div class="training-title">Phase I Complete!</div>
+            <div class="training-description">
+                Great job completing Phase I! You've tested your ability to distinguish between real and AI-generated faces.
+                <br><br>
+                Now, let's move to Phase II where you'll receive feedback on each choice to help improve your detection skills.
+                <br><br>
+                In Phase II, you'll see 18 image pairs with immediate feedback showing whether your choice was correct or incorrect.
+            </div>
+            <div class="training-buttons">
+                <button class="home-btn" id="phase1-home-btn">Home</button>
+                <button class="training-start-btn" id="phase1-training-btn">Start Phase II</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phase II Instructions Screen (shows before Phase II starts) -->
+    <div class="training-overlay phase2-instructions-overlay" id="phase2-instructions-overlay" style="display: none;">
+        <div class="training-content">
+            <div class="training-title">Phase II: Know Your Clues</div>
+            <div class="training-description">
+                During Phase II, you will see a table between the images showing features that may indicate an AI-generated face.
+                <br><br>
+                <strong>Take a moment to familiarize yourself with these features:</strong>
+            </div>
+            
+            <!-- Large preview of the features table -->
+            <div class="phase2-table-preview">
+                <div class="preview-table-header">Features Indicative of AI</div>
+                <div class="preview-table-body">
+                    <div class="preview-feature-row">High Proportionality</div>
+                    <div class="preview-feature-row">Low Memorability</div>
+                    <div class="preview-feature-row">High Familiarity</div>
+                </div>
+            </div>
+            
+            <div class="training-buttons">
+                <button class="training-start-btn" id="phase2-instructions-continue-btn">I'm Ready - Start Phase II</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phase II Complete Screen -->
+    <div class="training-overlay" id="training-complete-overlay" style="display: none;">
+        <div class="training-content">
+            <div class="training-title">Phase II Complete!</div>
+            <div class="training-description">
+                Excellent work! You've completed Phase II and received feedback on 18 image pairs.
+                <br><br>
+                Now you're ready for Phase III, where you'll test your improved skills with a new set of face images.
+                <br><br>
+                Phase III will use different images to evaluate how well you can now distinguish between real and AI-generated faces.
+            </div>
+            <div class="training-buttons">
+                <button class="home-btn" id="training-complete-home-btn">Home</button>
+                <button class="phase2-btn" id="training-complete-phase2-btn">Start Phase III</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Final Results Screen (after Phase III) -->
+    <div class="final-results-overlay" id="final-results-overlay" style="display: none;">
+        <div class="final-results-content">
+            <div class="final-results-title">Experiment Complete!</div>
+            
+            <div class="phase-scores-container">
+                <!-- Phase I Score -->
+                <div class="phase-score-card phase1-card">
+                    <div class="phase-score-header">Phase I</div>
+                    <div class="phase-score-value" id="phase1-score">0/15</div>
+                    <div class="phase-score-percent" id="phase1-percent">0%</div>
+                </div>
+                
+                <!-- Phase III Score -->
+                <div class="phase-score-card phase3-card">
+                    <div class="phase-score-header">Phase III</div>
+                    <div class="phase-score-value" id="phase3-score">0/15</div>
+                    <div class="phase-score-percent" id="phase3-percent">0%</div>
+                </div>
+            </div>
+            
+            <!-- Comparison Section -->
+            <div class="comparison-result" id="comparison-result">
+                <div class="comparison-result-text" id="comparison-text">Loading...</div>
+                <div class="comparison-result-value" id="comparison-value"></div>
+            </div>
+            
+            <div class="final-results-message" id="final-message">
+                Thank you for participating!
+            </div>
+            
+            <div class="final-results-buttons">
+                <button class="home-btn" id="final-home-btn">Home</button>
             </div>
         </div>
     </div>
@@ -707,6 +1449,16 @@
                 <div class="comparison-label">A</div>
             </div>
             
+            <!-- Training features table - only visible during Phase II -->
+            <div class="training-features-table">
+                <div class="table-header">Features Indicative of AI</div>
+                <div class="table-body">
+                    <div class="feature-row">High Proportionality</div>
+                    <div class="feature-row">Low Memorability</div>
+                    <div class="feature-row">High Familiarity</div>
+                </div>
+            </div>
+            
             <div class="comparison-option" id="option-b">
                 <img class="comparison-image" id="image-b" src="assets/faces/2_swf014.jpg" alt="Option B">
                 <div class="comparison-label">B</div>
@@ -716,20 +1468,25 @@
         <div class="center-overlay">
             <div class="question-display">
                 <div class="question-text">Which one do you think is Real?</div>
-                <div class="progress-text" id="progress-comparison">Image 1 of 10</div>
             </div>
         </div>
+
+        <!-- Progress indicator, pinned to the top-right corner -->
+        <div class="comparison-progress" id="progress-comparison">Image 1 of 10</div>
+
+        <!-- Undo button - only visible after a vote, before confirming -->
+        <button class="undo-btn" id="undo-btn">↶ Undo selection</button>
     </div>
 
     <!-- Results Screen -->
     <div class="results-overlay" id="results">
         <div class="results-content">
-            <div class="results-title">🎯 Complete!</div>
+            <div class="results-title">Complete!</div>
             <div class="score-display" id="score"></div>
             <div class="breakdown-display" id="breakdown"></div>
             <div class="results-buttons">
-                <button class="home-btn" id="home-btn">🏠 Home</button>
-                <button class="training-btn" id="training-btn">🎓 Next: Training</button>
+                <button class="home-btn" id="home-btn">Home</button>
+                <button class="training-btn" id="training-btn">Next: Phase II</button>
             </div>
         </div>
     </div>
@@ -740,15 +1497,21 @@
     </div>
 
     <!-- Webcam toggle button -->
-    <button class="webcam-toggle" id="webcam-toggle" style="display: none;">📹 Hide Camera</button>
+    <button class="webcam-toggle" id="webcam-toggle" style="display: none;">Hide Camera</button>
 
     <!-- Instructions -->
     <div class="instructions" id="instructions">
-        Click images • Arrow keys • Raise left/right hand to vote • Space to continue
+        Click images • Arrow keys • Raise left/right hand to vote • Space to continue • U to undo
     </div>
 
     <!-- Feedback flash overlay -->
     <div class="feedback-flash" id="feedback-flash"></div>
+
+    <!-- Training feedback message -->
+    <div class="training-feedback-message" id="training-feedback-message">
+        <div class="message-title"></div>
+        <div class="message-body"></div>
+    </div>
 
     <!-- Keep video hidden - only used for processing -->
     <div style="display: none;">

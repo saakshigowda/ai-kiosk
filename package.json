@@ -1,7 +1,7 @@
 {
-  "name": "ai-face-detection-backend",
+  "name": "faceorfake",
   "version": "1.0.0",
-  "description": "Backend server for AI Face Detection experiment data collection",
+  "description": "FaceOrFake - Can you tell real from AI-generated faces?",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

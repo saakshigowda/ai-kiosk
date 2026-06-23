@@ -1,7 +1,9 @@
 // Side-by-side comparison mode game logic
 const ComparisonMode = {
     trialStartTime: null, // Track when trial starts
-    
+    pendingTrial: null,   // Vote staged for save; committed on confirm, discarded on undo
+    undoCount: 0,         // Times the participant reversed on the current pair (reset each load)
+
     // Load images for comparison mode
     load() {
         if (GameState.currentIndex >= GameState.currentImages.length) {
@@ -11,10 +13,21 @@ const ComparisonMode = {
         
         // Record trial start time
         this.trialStartTime = Date.now();
-        
+        this.undoCount = 0; // fresh pair, no reversals yet
+
         Feedback.resetComparison();
+        this.hideUndoButton();
         
         const currentPair = GameState.currentImages[GameState.currentIndex];
+        
+        // Add/remove phase2-mode class based on current mode
+        if (GameState.currentMode === 'phase2') {
+            GameState.elements.imageA.classList.add('phase2-mode');
+            GameState.elements.imageB.classList.add('phase2-mode');
+        } else {
+            GameState.elements.imageA.classList.remove('phase2-mode');
+            GameState.elements.imageB.classList.remove('phase2-mode');
+        }
         
         if (GameState.currentMode === 'demo') {
             // Demo mode: Load cat vs dog images
@@ -30,9 +43,25 @@ const ComparisonMode = {
             
             console.log(`Demo Round ${GameState.currentIndex + 1}: Dog in ${currentPair.dogInA ? 'A' : 'B'}`);
             console.log(`Images: ${currentPair.dogImage.originalName} vs ${currentPair.catImage.originalName}`);
+        } else if (GameState.currentMode === 'phase3') {
+            // Phase III mode: Load real vs AI images
+            // Use opposite set from Phase I based on counterbalancing
+            const useSetA = GameState.setOrder === 'B';
+            const assetPath = useSetA ? 'assets/faces/' : 'assets/SetB/';
+            
+            if (currentPair.realInA) {
+                GameState.elements.imageA.src = `${assetPath}${currentPair.realImage.file}`;
+                GameState.elements.imageB.src = `${assetPath}${currentPair.aiImage.file}`;
+            } else {
+                GameState.elements.imageA.src = `${assetPath}${currentPair.aiImage.file}`;
+                GameState.elements.imageB.src = `${assetPath}${currentPair.realImage.file}`;
+            }
+            
+            console.log(`Phase III Round ${GameState.currentIndex + 1}: Real in ${currentPair.realInA ? 'A' : 'B'} (using ${useSetA ? 'SetA' : 'SetB'})`);
+            console.log(`Images: ${currentPair.realImage.originalName} vs ${currentPair.aiImage.originalName}`);
         } else if (GameState.currentMode === 'phase2') {
-            // Phase II mode: Load real vs AI images from SetB
-            const assetPath = 'assets/SetB/';
+            // Phase II mode: Load real vs AI images from Training folder
+            const assetPath = 'assets/Training/';
             
             if (currentPair.realInA) {
                 GameState.elements.imageA.src = `${assetPath}${currentPair.realImage.file}`;
@@ -45,8 +74,10 @@ const ComparisonMode = {
             console.log(`Phase II Round ${GameState.currentIndex + 1}: Real in ${currentPair.realInA ? 'A' : 'B'}`);
             console.log(`Images: ${currentPair.realImage.originalName} vs ${currentPair.aiImage.originalName}`);
         } else {
-            // Pretest mode: Load real vs AI images
-            const assetPath = 'assets/faces/';
+            // Pretest (Phase I) mode: Load real vs AI images
+            // Use Set A or Set B based on counterbalancing
+            const useSetB = GameState.setOrder === 'B';
+            const assetPath = useSetB ? 'assets/SetB/' : 'assets/faces/';
             
             if (currentPair.realInA) {
                 GameState.elements.imageA.src = `${assetPath}${currentPair.realImage.file}`;
@@ -56,7 +87,7 @@ const ComparisonMode = {
                 GameState.elements.imageB.src = `${assetPath}${currentPair.realImage.file}`;
             }
             
-            console.log(`Pretest Round ${GameState.currentIndex + 1}: Real in ${currentPair.realInA ? 'A' : 'B'}`);
+            console.log(`Phase I Round ${GameState.currentIndex + 1}: Real in ${currentPair.realInA ? 'A' : 'B'} (using ${useSetB ? 'SetB' : 'SetA'})`);
             console.log(`Images: ${currentPair.realImage.originalName} vs ${currentPair.aiImage.originalName}`);
         }
         
@@ -129,7 +160,7 @@ const ComparisonMode = {
                 
             console.log("Dog in A:", currentPair.dogInA, "User chose A:", chooseA, "User chose dog:", userChoseCorrect);
         } else {
-            // Pretest and Phase II modes: User is correct if they choose the real image
+            // Pretest and Phase III modes: User is correct if they choose the real image
             userChoseCorrect = (chooseA && currentPair.realInA) || (!chooseA && !currentPair.realInA);
             
             // Determine which images are on left (A) and right (B)
@@ -157,31 +188,102 @@ const ComparisonMode = {
         
         // Record result in game state (for local tracking)
         GameState.recordResult(selectedImage, actualChoice, userChoseCorrect, currentPair);
-        
-        // Save to backend API
+
+        // Stage the backend trial instead of saving immediately. It is committed in
+        // Game.nextImage() once the user confirms, or discarded by undo() if they
+        // change their selection — so an undone vote never reaches the CSV.
         const userChoiceSide = chooseA ? 'left' : 'right';
-        await ApiClient.saveTrial({
+        this.pendingTrial = {
             mode: GameState.currentMode,
+            setOrder: GameState.setOrder,
             trialNumber: GameState.currentIndex + 1,
             leftImage: leftImage,
             rightImage: rightImage,
             userChoice: userChoiceSide,
             correctAnswer: correctSide,
             isCorrect: userChoseCorrect,
-            responseTimeMs: responseTime
-        });
-        
-        // Check if we've reached the end
-        if (GameState.currentIndex + 1 >= GameState.currentImages.length) {
-            // STORE THE MODE BEFORE THE TIMEOUT - this is the fix!
-            const completedMode = GameState.currentMode;
-            
-            // If at end, show results after a delay (no thumbs up or space needed)
-            setTimeout(() => {
-                Results.show(completedMode);
-            }, 2500);
+            responseTimeMs: responseTime,
+            undoCount: this.undoCount // reversals before settling on this choice
+        };
+
+        // Offer the chance to reverse this selection until it is confirmed.
+        this.showUndoButton();
+
+        // Wait for the user to confirm with a thumbs up or the space bar before
+        // advancing — including on the final pair, which Game.nextImage() routes
+        // to the results screen. (Handled in webcam.js processThumbsUp / main.js space handler.)
+    },
+
+    // Commit the staged vote to the backend. Called from Game.nextImage() right
+    // before advancing, so only confirmed selections are persisted.
+    commitTrial() {
+        if (!this.pendingTrial) return;
+
+        // Fire-and-forget so the UI never blocks on the network.
+        ApiClient.saveTrial(this.pendingTrial).catch(err => console.error("saveTrial failed:", err));
+        this.pendingTrial = null;
+        this.hideUndoButton();
+    },
+
+    // Reverse the current selection so the user can vote again on the same pair.
+    // Valid only while waiting to confirm (between vote and advancing).
+    undo() {
+        if (!GameState.waitingForNextTrial || GameState.gameComplete) {
+            return;
         }
-        // Otherwise, wait for thumbs up gesture or space bar to load next image
-        // (this is handled in webcam.js processThumbsUp method or main.js space handler)
+
+        console.log("Undo selection - reverting to current pair");
+
+        this.undoCount++;
+
+        // Log the undo as its own event, capturing the choice being abandoned,
+        // before we discard the staged trial.
+        const abandoned = this.pendingTrial;
+        if (abandoned) {
+            ApiClient.saveUndo({
+                mode: abandoned.mode,
+                setOrder: abandoned.setOrder,
+                trialNumber: abandoned.trialNumber,
+                leftImage: abandoned.leftImage,
+                rightImage: abandoned.rightImage,
+                abandonedChoice: abandoned.userChoice,
+                abandonedWasCorrect: abandoned.isCorrect,
+                correctAnswer: abandoned.correctAnswer,
+                undoIndex: this.undoCount,
+                responseTimeMs: abandoned.responseTimeMs
+            }).catch(err => console.error("saveUndo failed:", err));
+        }
+
+        // Drop the locally recorded result and the staged backend trial.
+        GameState.results.pop();
+        this.pendingTrial = null;
+
+        // Restore the un-voted visuals (re-enables clicking, clears feedback glow).
+        Feedback.resetComparison();
+        this.hideUndoButton();
+
+        // Re-arm voting on the same pair and restart its response timer.
+        GameState.waitingForNextTrial = false;
+        this.trialStartTime = Date.now();
+
+        // Exit thumbs-up mode and re-enable voting gestures. Apply the gesture
+        // cooldown so a still-raised hand doesn't immediately re-cast a vote.
+        if (typeof Webcam !== 'undefined' && Webcam.isSetup) {
+            Webcam.waitingForThumbsUp = false;
+            Webcam.gesturesEnabled = true;
+            Webcam.lastGesture = performance.now();
+        }
+    },
+
+    showUndoButton() {
+        if (GameState.elements.undoBtn) {
+            GameState.elements.undoBtn.classList.add('show');
+        }
+    },
+
+    hideUndoButton() {
+        if (GameState.elements.undoBtn) {
+            GameState.elements.undoBtn.classList.remove('show');
+        }
     }
 };

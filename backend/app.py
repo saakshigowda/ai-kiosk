@@ -15,8 +15,9 @@ if not os.path.exists(DATA_DIR):
 
 # CSV file paths
 CSV_FILES = {
-    'pretest': os.path.join(DATA_DIR, 'pretest_results.csv'),
+    'phase1': os.path.join(DATA_DIR, 'phase1_results.csv'),
     'phase2': os.path.join(DATA_DIR, 'phase2_results.csv'),
+    'phase3': os.path.join(DATA_DIR, 'phase3_results.csv'),
     'demo': os.path.join(DATA_DIR, 'demo_results.csv')
 }
 
@@ -41,7 +42,7 @@ def initialize_csv_files():
             with open(filepath, 'w', newline='', encoding='utf-8') as f:
                 writer = csv.writer(f)
                 writer.writerow(CSV_HEADERS)
-            print(f"✓ Created {mode} CSV file")
+            print(f"Created {mode} CSV file")
 
 # Initialize CSV files on startup
 initialize_csv_files()
@@ -66,7 +67,7 @@ def start_session():
     user_id = str(uuid.uuid4())
     session_timestamp = datetime.now().isoformat()
     
-    print(f"📝 New session started: {user_id}")
+    print(f"New session started: {user_id}")
     
     return jsonify({
         'userId': user_id,
@@ -123,7 +124,7 @@ def save_trial():
             writer = csv.writer(f)
             writer.writerow(row)
         
-        print(f"✓ Trial saved: User {data['userId'][:8]}..., Mode {mode}, Trial {data['trialNumber']}")
+        print(f"Trial saved: User {data['userId'][:8]}..., Mode {mode}, Trial {data['trialNumber']}")
         
         return jsonify({
             'message': 'Trial saved successfully',
@@ -133,7 +134,7 @@ def save_trial():
         })
     
     except Exception as e:
-        print(f"✗ Error saving trial: {str(e)}")
+        print(f"Error saving trial: {str(e)}")
         return jsonify({
             'error': 'Failed to save trial',
             'details': str(e)
@@ -191,7 +192,7 @@ def save_session():
                 except Exception as e:
                     errors.append(f"Trial {idx + 1}: {str(e)}")
         
-        print(f"✓ Session saved: {saved_count} trials for user {user_id[:8] if user_id else 'unknown'}...")
+        print(f"Session saved: {saved_count} trials for user {user_id[:8] if user_id else 'unknown'}...")
         
         return jsonify({
             'message': 'Session saved successfully',
@@ -201,7 +202,7 @@ def save_session():
         })
     
     except Exception as e:
-        print(f"✗ Error saving session: {str(e)}")
+        print(f"Error saving session: {str(e)}")
         return jsonify({
             'error': 'Failed to save session',
             'details': str(e)
@@ -308,14 +309,14 @@ def view_data(mode):
 
 if __name__ == '__main__':
     print("\n" + "="*60)
-    print("🚀 AI Face Detection Flask Backend")
+    print("FaceOrFake Flask Backend")
     print("="*60)
-    print(f"📡 Server will run on: http://localhost:5000")
-    print(f"📁 Data directory: {os.path.abspath(DATA_DIR)}")
-    print(f"📊 CSV files:")
+    print(f"Server will run on: http://localhost:5000")
+    print(f"Data directory: {os.path.abspath(DATA_DIR)}")
+    print(f"CSV files:")
     for mode, path in CSV_FILES.items():
         print(f"   - {mode}: {os.path.abspath(path)}")
-    print("\n🔗 API Endpoints:")
+    print("\nAPI Endpoints:")
     print("   POST /api/start-session - Start new session")
     print("   POST /api/save-trial - Save individual trial")
     print("   POST /api/save-session - Save complete session")
@@ -323,7 +324,7 @@ if __name__ == '__main__':
     print("   GET  /api/download/<mode> - Download CSV")
     print("   GET  /api/view/<mode> - View recent data")
     print("   GET  /api/health - Health check")
-    print("\n💡 Frontend should run on: http://localhost:8080")
+    print("\nFrontend should run on: http://localhost:8080")
     print("="*60 + "\n")
     
     app.run(debug=True, host='0.0.0.0', port=5000)

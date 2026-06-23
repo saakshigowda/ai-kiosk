@@ -18,25 +18,29 @@ const Utils = {
     // Error handling for images
     handleImageError(imgElement, imagePath) {
         console.error("Failed to load image:", imagePath);
-        imgElement.src = "https://via.placeholder.com/250x250/333/fff?text=Image+Not+Found";
+        
+        // Try alternate extension (.jpg vs .JPG)
+        if (imagePath.endsWith('.jpg')) {
+            const altPath = imagePath.replace('.jpg', '.JPG');
+            console.log("Trying alternate extension:", altPath);
+            imgElement.src = altPath;
+        } else if (imagePath.endsWith('.JPG')) {
+            const altPath = imagePath.replace('.JPG', '.jpg');
+            console.log("Trying alternate extension:", altPath);
+            imgElement.src = altPath;
+        } else {
+            imgElement.src = "https://via.placeholder.com/250x250/333/fff?text=Image+Not+Found";
+        }
     }
 };
 
 // Question sets for different modes
 const Questions = {
     comparison: [
-        "Which one do you think is Real?",
-        "Which face belongs to a real person?",
-        "Which image shows a real human?",
-        "Which one is the genuine photograph?",
-        "Pick the real person:"
+        "Which is the real person?"
     ],
 
     demo: [
-        "Which one is the dog?",
-        "Pick the dog!",
-        "Which image shows a dog?",
-        "Can you find the dog?",
-        "Choose the dog:"
+        "Which one is the dog?"
     ]
 };

@@ -330,7 +330,7 @@ function showResults() {
     // Create breakdown
     let breakdown = "<div style='margin-top: 1rem; text-align: left; max-height: 300px; overflow-y: auto;'>";
     results.forEach(result => {
-        const icon = result.correct ? "✅" : "❌";
+        const icon = result.correct ? "[OK]" : "[X]";
         const color = result.correct ? "#2ecc71" : "#e74c3c";
         breakdown += `<div style="margin: 0.5rem 0; color: ${color}; font-size: 0.9rem;">
             ${icon} #${result.imageNumber}: ${result.actualType} (you chose ${result.userGuess})
@@ -417,7 +417,7 @@ function showSingleFeedback(isCorrect, userGuessedAI) {
         clickedBtn.style.background = '#2ecc71';
         clickedBtn.style.color = 'white';
         clickedBtn.style.transform = 'scale(1.1)';
-        clickedBtn.textContent = clickedBtn.textContent + ' ✓';
+        clickedBtn.textContent = clickedBtn.textContent;
         
         // Pulse the image frame green
         img.parentElement.style.borderColor = '#2ecc71';
@@ -427,12 +427,12 @@ function showSingleFeedback(isCorrect, userGuessedAI) {
         clickedBtn.style.background = '#e74c3c';
         clickedBtn.style.color = 'white';
         clickedBtn.style.transform = 'scale(0.9)';
-        clickedBtn.textContent = clickedBtn.textContent + ' ✗';
+        clickedBtn.textContent = clickedBtn.textContent;
         
         // Show correct answer
         otherBtn.style.background = '#2ecc71';
         otherBtn.style.color = 'white';
-        otherBtn.textContent = otherBtn.textContent + ' ✓';
+        otherBtn.textContent = otherBtn.textContent;
         
         // Pulse the image frame red
         img.parentElement.style.borderColor = '#e74c3c';
@@ -453,7 +453,7 @@ function showComparisonFeedback(isCorrect, realInA, userChoseA) {
         // User chose correctly (the real image)
         realOption.querySelector('.option-frame').style.borderColor = '#2ecc71';
         realOption.querySelector('.option-frame').style.boxShadow = '0 0 20px rgba(46, 204, 113, 0.6)';
-        realOption.querySelector('.option-label').textContent = 'Real Person ✓';
+        realOption.querySelector('.option-label').textContent = 'Real Person';
         realOption.querySelector('.option-label').style.color = '#2ecc71';
         
         // Mark the AI image
@@ -463,13 +463,13 @@ function showComparisonFeedback(isCorrect, realInA, userChoseA) {
         // User chose incorrectly (picked the AI image)
         chosenOption.querySelector('.option-frame').style.borderColor = '#e74c3c';
         chosenOption.querySelector('.option-frame').style.boxShadow = '0 0 20px rgba(231, 76, 60, 0.6)';
-        chosenOption.querySelector('.option-label').textContent = 'AI Generated ✗';
+        chosenOption.querySelector('.option-label').textContent = 'AI Generated';
         chosenOption.querySelector('.option-label').style.color = '#e74c3c';
         
         // Show correct answer
         realOption.querySelector('.option-frame').style.borderColor = '#2ecc71';
         realOption.querySelector('.option-frame').style.boxShadow = '0 0 20px rgba(46, 204, 113, 0.6)';
-        realOption.querySelector('.option-label').textContent = 'Real Person ✓';
+        realOption.querySelector('.option-label').textContent = 'Real Person';
         realOption.querySelector('.option-label').style.color = '#2ecc71';
     }
 }
@@ -483,11 +483,11 @@ function resetSingleMode() {
     // Reset button styles
     aiBtn.style.background = 'transparent';
     aiBtn.style.transform = '';
-    aiBtn.textContent = '⬅ AI Generated';
+    aiBtn.textContent = 'AI Generated';
     
     realBtn.style.background = 'transparent';
     realBtn.style.transform = '';
-    realBtn.textContent = 'Real Person ➡';
+    realBtn.textContent = 'Real Person';
     
     // Reset image frame
     img.parentElement.style.borderColor = '#444';
@@ -605,5 +605,5 @@ imageB.onerror = function() {
 };
 
 // Initialize the game
-console.log("AI Face Detection Challenge loaded!");
+console.log("FaceOrFake loaded!");
 initGame();

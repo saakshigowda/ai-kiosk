@@ -12,7 +12,7 @@ const Webcam = {
     // Gesture detection settings
     settings: {
         GESTURE_COOLDOWN: 2000,      // ms between gestures (2 seconds)
-        POSITION_THRESHOLD: 0.3,     // How far left/right to trigger
+        POSITION_THRESHOLD: 0.25,    // How far left/right to trigger (0.25 = 25-50-25 split)
         RAISE_THRESHOLD: 0.15,       // How high hand must be raised
         THUMBS_UP_THRESHOLD: 0.1,    // How much thumb should be extended for thumbs up
     },
@@ -45,14 +45,14 @@ const Webcam = {
             // Start the render loop
             this.startRenderLoop();
             
-            this.updateStatus("âœ… Hand tracking ready! Raise left/right hand to vote", true);
+            this.updateStatus("Hand tracking ready! Raise left/right hand to vote", true);
             this.isSetup = true;
             
             console.log("Webcam and hand tracking initialized successfully!");
             
         } catch (error) {
             console.error("Failed to initialize webcam:", error);
-            this.updateStatus("âŒ Camera not available. Use clicks/keys to vote.", false);
+            this.updateStatus("Camera not available. Use clicks/keys to vote.", false);
         }
     },
     
@@ -82,24 +82,51 @@ const Webcam = {
     async setupCamera() {
         console.log("Setting up camera...");
         
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-            video: { 
-                width: 640, 
-                height: 480,
-                facingMode: 'user'  // Front-facing camera
-            } 
-        });
-        
-        this.video.srcObject = stream;
-        
-        return new Promise((resolve) => {
-            this.video.onloadedmetadata = async () => {
-                // Force video to play
-                await this.video.play();
-                console.log("Camera ready and playing");
-                resolve(this.video);
-            };
-        });
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    width: 640, 
+                    height: 480,
+                    facingMode: 'user'  // Front-facing camera
+                } 
+            });
+            
+            console.log("Got camera stream:", stream);
+            this.video.srcObject = stream;
+            
+            return new Promise((resolve, reject) => {
+                this.video.onloadedmetadata = async () => {
+                    console.log("Video metadata loaded, attempting to play...");
+                    try {
+                        await this.video.play();
+                        console.log("Camera ready and playing");
+                        resolve(this.video);
+                    } catch (playError) {
+                        console.error("Error playing video:", playError);
+                        reject(playError);
+                    }
+                };
+                
+                // Add error handler
+                this.video.onerror = (error) => {
+                    console.error("Video element error:", error);
+                    reject(error);
+                };
+                
+                // Timeout after 10 seconds
+                setTimeout(() => {
+                    reject(new Error("Camera setup timeout"));
+                }, 10000);
+            });
+        } catch (error) {
+            console.error("Failed to get camera access:", error);
+            if (error.name === 'NotAllowedError') {
+                console.error("Camera permission denied by user");
+            } else if (error.name === 'NotFoundError') {
+                console.error("No camera found on device");
+            }
+            throw error;
+        }
     },
     
     // Initialize MediaPipe Hands
@@ -136,8 +163,11 @@ const Webcam = {
             }
             
             if (this.waitingForThumbsUp) {
-                // Check for thumbs up gesture
+                // Thumbs up confirms and advances; thumbs down undoes the selection.
                 this.detectThumbsUpGesture(results.multiHandLandmarks, results.multiHandedness);
+                if (this.waitingForThumbsUp) {
+                    this.detectThumbsDownGesture(results.multiHandLandmarks, results.multiHandedness);
+                }
             } else {
                 // Detect voting gestures
                 this.detectVotingGesture(results.multiHandLandmarks, results.multiHandedness);
@@ -145,6 +175,17 @@ const Webcam = {
         }
     },
     
+    // Draw text un-mirrored. The canvas is CSS-flipped (scaleX(-1)) so the video
+    // looks like a mirror; without this counter-flip, glyphs render reversed.
+    drawText(text, x, y, withStroke = false) {
+        this.ctx.save();
+        this.ctx.translate(2 * x, 0);
+        this.ctx.scale(-1, 1);
+        if (withStroke) this.ctx.strokeText(text, x, y);
+        this.ctx.fillText(text, x, y);
+        this.ctx.restore();
+    },
+
     // Draw overlay regions showing where to place hands
     drawHandRegionOverlays() {
         const width = this.canvas.width;
@@ -166,17 +207,17 @@ const Webcam = {
             const centerX = width / 2;
             const centerY = height / 2;
             
-            this.ctx.strokeText('THUMBS UP or SPACE', centerX, centerY - 30);
-            this.ctx.fillText('THUMBS UP or SPACE', centerX, centerY - 30);
-            
+            this.drawText('THUMBS UP or SPACE', centerX, centerY - 30, true);
+
             this.ctx.font = 'bold 16px Arial';
-            this.ctx.strokeText('Thumbs Up or Press Space', centerX, centerY);
-            this.ctx.fillText('Thumbs Up or Press Space', centerX, centerY);
-            
+            this.drawText('Thumbs Up or Press Space', centerX, centerY, true);
+
             this.ctx.font = '14px Arial';
-            this.ctx.strokeText('to continue to next images', centerX, centerY + 25);
-            this.ctx.fillText('to continue to next images', centerX, centerY + 25);
-            
+            this.drawText('to continue to next images', centerX, centerY + 25, true);
+
+            this.ctx.font = '12px Arial';
+            this.drawText('Thumbs Down or U to undo your choice', centerX, centerY + 48, true);
+
             return;
         }
         
@@ -241,13 +282,11 @@ const Webcam = {
         
         // Left label (Option B)
         const leftLabelX = leftRegionWidth / 2;
-        this.ctx.strokeText('B', leftLabelX, 30);
-        this.ctx.fillText('B', leftLabelX, 30);
-        
-        // Right label (Option A)  
+        this.drawText('B', leftLabelX, 30, true);
+
+        // Right label (Option A)
         const rightLabelX = rightRegionStart + (rightRegionWidth / 2);
-        this.ctx.strokeText('A', rightLabelX, 30);
-        this.ctx.fillText('A', rightLabelX, 30);
+        this.drawText('A', rightLabelX, 30, true);
         
         // Instructions at bottom
         this.ctx.font = '12px Arial';
@@ -261,8 +300,7 @@ const Webcam = {
         const instructionText = this.gesturesEnabled ? 
             'Raise hand in colored region to vote' : 
             'Hand voting disabled - transitioning...';
-        this.ctx.strokeText(instructionText, centerX, instructionY);
-        this.ctx.fillText(instructionText, centerX, instructionY);
+        this.drawText(instructionText, centerX, instructionY, true);
     },
     
     // Detect thumbs up gesture
@@ -320,15 +358,71 @@ const Webcam = {
         this.ctx.textAlign = 'center';
         this.ctx.strokeStyle = '#000';
         this.ctx.lineWidth = 3;
-        this.ctx.strokeText('âœ" READY!', this.canvas.width / 2, this.canvas.height / 2);
-        this.ctx.fillText('âœ" READY!', this.canvas.width / 2, this.canvas.height / 2);
+        this.drawText('READY!', this.canvas.width / 2, this.canvas.height / 2, true);
         
         // Brief delay then load next image
         setTimeout(() => {
             Game.nextImage();
         }, 500);
     },
-    
+
+    // Detect thumbs down gesture (mirror of thumbs up) - used to undo a selection
+    detectThumbsDownGesture(handLandmarks, handedness) {
+        for (let i = 0; i < handLandmarks.length; i++) {
+            const landmarks = handLandmarks[i];
+
+            const thumb_tip = landmarks[4];      // Thumb tip
+            const thumb_ip = landmarks[3];       // Thumb intermediate phalanx
+            const thumb_mcp = landmarks[2];      // Thumb metacarpophalangeal
+            const index_tip = landmarks[8];      // Index finger tip
+            const index_pip = landmarks[6];      // Index finger proximal interphalangeal
+            const middle_tip = landmarks[12];    // Middle finger tip
+            const middle_pip = landmarks[10];    // Middle finger proximal interphalangeal
+            const ring_tip = landmarks[16];      // Ring finger tip
+            const ring_pip = landmarks[14];      // Ring finger proximal interphalangeal
+            const pinky_tip = landmarks[20];     // Pinky tip
+            const pinky_pip = landmarks[18];     // Pinky proximal interphalangeal
+
+            // Check if thumb is extended downward (tip below the joints)
+            const thumbExtendedDown = thumb_tip.y > thumb_ip.y && thumb_ip.y > thumb_mcp.y;
+
+            // With the hand inverted, curled finger tips sit above their PIPs
+            const indexCurled = index_tip.y < index_pip.y;
+            const middleCurled = middle_tip.y < middle_pip.y;
+            const ringCurled = ring_tip.y < ring_pip.y;
+            const pinkyCurled = pinky_tip.y < pinky_pip.y;
+
+            // Check if hand is in center region
+            const handX = thumb_tip.x;
+            const inCenterRegion = handX > this.settings.POSITION_THRESHOLD &&
+                                 handX < (1 - this.settings.POSITION_THRESHOLD);
+
+            if (thumbExtendedDown && indexCurled && middleCurled && ringCurled && pinkyCurled && inCenterRegion) {
+                console.log("Thumbs down gesture detected!");
+                this.processThumbsDown();
+                return;
+            }
+        }
+    },
+
+    // Process thumbs down gesture - undo the current selection
+    processThumbsDown() {
+        if (!this.waitingForThumbsUp) return;
+
+        console.log("Thumbs down confirmed - undoing selection");
+
+        // Show feedback
+        this.ctx.fillStyle = '#e74c3c';
+        this.ctx.font = 'bold 32px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.strokeStyle = '#000';
+        this.ctx.lineWidth = 3;
+        this.drawText('UNDO', this.canvas.width / 2, this.canvas.height / 2, true);
+
+        // Undo re-arms voting and resets waitingForThumbsUp / gesturesEnabled / cooldown.
+        ComparisonMode.undo();
+    },
+
     // Detect when user raises left or right hand for voting
     detectVotingGesture(handLandmarks, handedness) {
         const now = performance.now();
@@ -396,7 +490,8 @@ const Webcam = {
         const chooseA = direction === 'RIGHT_SIDE';  // FLIPPED
         
         const modeText = GameState.currentMode === 'demo' ? 'Demo' : 
-                       GameState.currentMode === 'phase2' ? 'Phase II' : 'Pretest';
+                       GameState.currentMode === 'phase3' ? 'Phase III' :
+                       GameState.currentMode === 'phase2' ? 'Phase II' : 'Phase I';
         console.log(`${modeText} mode hand vote: ${chooseA ? 'A' : 'B'} (${handLabel} hand raised)`);
         ComparisonMode.vote(chooseA);
     },
@@ -426,16 +521,16 @@ const Webcam = {
         this.ctx.textAlign = 'center';
         this.ctx.strokeStyle = '#000';
         this.ctx.lineWidth = 3;
-        this.ctx.strokeText(text, handX * this.canvas.width, 60);
-        this.ctx.fillText(text, handX * this.canvas.width, 60);
-        
+        const textX = handX * this.canvas.width;
+        this.drawText(text, textX, 60, true);
+
         // Show hand info
         this.ctx.font = 'bold 16px Arial';
-        this.ctx.fillText(`${handLabel} Hand`, handX * this.canvas.width, 90);
-        
+        this.drawText(`${handLabel} Hand`, textX, 90);
+
         // Add cooldown indicator
         this.ctx.font = '14px Arial';
-        this.ctx.fillText('Wait 2 seconds...', handX * this.canvas.width, 110);
+        this.drawText('Wait 2 seconds...', textX, 110);
     },
     
     // Start the video rendering loop
@@ -459,7 +554,7 @@ const Webcam = {
         // Update instructions
         const instructions = document.querySelector('.instructions');
         if (instructions && isReady) {
-            instructions.textContent = 'Click images • Arrow keys • Raise left/right hand to vote • Space to continue';
+            instructions.textContent = 'Click images • Arrow keys • Raise left/right hand to vote • Space to continue • U to undo';
         }
     },
     

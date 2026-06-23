@@ -78,6 +78,46 @@ const ImageLoader = {
         return images;
     },
 
+    // Load Training images
+    loadTrainingDatabase() {
+        const imageFiles = [
+            "1_swf047", "2_swf046", "3_rwm016", "4_swf024", "5_rwm020", "6_rwm049", 
+            "7_swf011", "8_swf017", "9_swf021", "10_rwf028", "11_swf025", "12_rwf025", 
+            "13_rwm047", "14_rwf029", "15_swf022", "16_rwm048", "17_swf032", "18_rwf013",
+            "19_rwm015", "20_swf010", "21_rwf008", "22_rwf038", "23_rwf045", "24_rwf041", 
+            "25_swf039", "26_swf019", "27_rwf016", "28_swf001", "29_swf016", "30_swf002", 
+            "31_swf009", "32_rwf037", "33_rwf020", "34_swm008", "35_rwm037", "36_swm009"
+        ];
+        
+        const images = [];
+        
+        imageFiles.forEach((filename, index) => {
+            try {
+                const parts = filename.split('_');
+                if (parts.length < 2) {
+                    console.warn(`Invalid Training filename format: ${filename}`);
+                    return;
+                }
+                
+                const typeIndicator = parts[1][0];
+                const isReal = typeIndicator === 'r';
+                
+                images.push({
+                    file: filename + ".jpg",
+                    fileAlt: filename + ".JPG",
+                    isAI: !isReal,
+                    index: index + 1,
+                    originalName: filename
+                });
+            } catch (error) {
+                console.error(`Error parsing Training filename ${filename}:`, error);
+            }
+        });
+        
+        console.log("Loaded", images.length, "Training images");
+        return images;
+    },
+
     // Load demo images (cats and dogs)
     loadDemoDatabase() {
         const demoImages = [];
@@ -108,11 +148,18 @@ const ImageLoader = {
         return demoImages;
     },
     
-    // Create unique comparison pairs (no repeats)
+    // Create unique comparison pairs for Phase I (pretest)
+    // Uses Set A or Set B based on counterbalancing
     createComparisonPairs(numPairs) {
-        const realImages = GameState.allImages.filter(img => !img.isAI);
-        const aiImages = GameState.allImages.filter(img => img.isAI);
+        // Determine which image set to use based on setOrder
+        const useSetB = GameState.setOrder === 'B';
+        const imageSet = useSetB ? GameState.setBImages : GameState.allImages;
+        const setName = useSetB ? 'SetB' : 'SetA';
         
+        const realImages = imageSet.filter(img => !img.isAI);
+        const aiImages = imageSet.filter(img => img.isAI);
+        
+        console.log(`Phase I using ${setName} (setOrder: ${GameState.setOrder})`);
         console.log("Available real images:", realImages.length);
         console.log("Available AI images:", aiImages.length);
         
@@ -136,7 +183,8 @@ const ImageLoader = {
                 realImage,
                 aiImage,
                 realInA,
-                pairNumber: i + 1
+                pairNumber: i + 1,
+                setUsed: setName  // Track which set was used
             });
             
             console.log(`Pair ${i + 1}: ${realImage.originalName} (real) vs ${aiImage.originalName} (AI)`);
@@ -145,16 +193,61 @@ const ImageLoader = {
         return pairs;
     },
 
-    // Create Phase II pairs using SetB images
-    createPhase2Pairs(numPairs) {
-        const realImages = GameState.setBImages.filter(img => !img.isAI);
-        const aiImages = GameState.setBImages.filter(img => img.isAI);
+    // Create Phase III pairs (post-test)
+    // Uses opposite set from Phase I based on counterbalancing
+    createPhase3Pairs(numPairs) {
+        // Determine which image set to use (opposite of Phase I)
+        const useSetA = GameState.setOrder === 'B';  // Opposite of Phase I
+        const imageSet = useSetA ? GameState.allImages : GameState.setBImages;
+        const setName = useSetA ? 'SetA' : 'SetB';
         
-        console.log("Available SetB real images:", realImages.length);
-        console.log("Available SetB AI images:", aiImages.length);
+        const realImages = imageSet.filter(img => !img.isAI);
+        const aiImages = imageSet.filter(img => img.isAI);
+        
+        console.log(`Phase III using ${setName} (setOrder: ${GameState.setOrder})`);
+        console.log("Available real images:", realImages.length);
+        console.log("Available AI images:", aiImages.length);
         
         if (realImages.length === 0 || aiImages.length === 0) {
-            console.error("Need both real and AI SetB images for Phase II");
+            console.error("Need both real and AI images for Phase III");
+            return [];
+        }
+        
+        const pairs = [];
+        const maxPairs = Math.min(numPairs, Math.min(realImages.length, aiImages.length));
+        
+        const shuffledReal = Utils.shuffleArray(realImages);
+        const shuffledAI = Utils.shuffleArray(aiImages);
+        
+        for (let i = 0; i < maxPairs; i++) {
+            const realImage = shuffledReal[i % shuffledReal.length];
+            const aiImage = shuffledAI[i % shuffledAI.length];
+            const realInA = Math.random() < 0.5;
+            
+            pairs.push({
+                realImage,
+                aiImage,
+                realInA,
+                pairNumber: i + 1,
+                setUsed: setName  // Track which set was used
+            });
+            
+            console.log(`Phase III Pair ${i + 1}: ${realImage.originalName} (real) vs ${aiImage.originalName} (AI)`);
+        }
+        
+        return pairs;
+    },
+
+    // Create Phase II pairs (training)
+    createPhase2Pairs(numPairs) {
+        const realImages = GameState.trainingImages.filter(img => !img.isAI);
+        const aiImages = GameState.trainingImages.filter(img => img.isAI);
+        
+        console.log("Available Phase II real images:", realImages.length);
+        console.log("Available Phase II AI images:", aiImages.length);
+        
+        if (realImages.length === 0 || aiImages.length === 0) {
+            console.error("Need both real and AI images for Phase II");
             return [];
         }
         
