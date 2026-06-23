@@ -1,13 +1,15 @@
 # FaceOrFake
 
+Built for the ENGAGE research internship.
+
 An interactive kiosk experiment that measures how well participants can tell **real
-photographs of faces apart from AI‑generated ones** — and whether a short training
+photographs of faces apart from AI-generated ones**, and whether a short training
 phase improves that ability.
 
 Participants work through three phases (a baseline test, a training round with
 feedback, and a final test). Each trial shows two faces side by side; the participant
 picks the one they believe is real. Choices, response times, and corrections are
-logged to CSV for later analysis. The kiosk can be driven either with on‑screen
+logged to CSV for later analysis. The kiosk can be driven either with on-screen
 buttons or with **hand gestures via the webcam** (powered by MediaPipe).
 
 ---
@@ -17,16 +19,16 @@ buttons or with **hand gestures via the webcam** (powered by MediaPipe).
 | Layer | Technology | Role |
 |-------|-----------|------|
 | **Frontend** | Vanilla HTML / CSS / JavaScript (ES modules), [MediaPipe Tasks Vision](https://developers.google.com/mediapipe) | The kiosk UI, image pairs, gesture detection. Lives in [`frontend/`](frontend/). |
-| **Backend (primary)** | Node.js + [Express](https://expressjs.com/) | Serves the frontend and exposes the data‑collection API. See [`server.js`](server.js). |
-| **Backend (alternative)** | Python + [Flask](https://flask.palletsprojects.com/) | Drop‑in alternative API with the same endpoints. See [`backend/app.py`](backend/app.py). |
+| **Backend (primary)** | Node.js + [Express](https://expressjs.com/) | Serves the frontend and exposes the data-collection API. See [`server.js`](server.js). |
+| **Backend (alternative)** | Python + [Flask](https://flask.palletsprojects.com/) | Drop-in alternative API with the same endpoints. See [`backend/app.py`](backend/app.py). |
 
-You only need **one** backend. The Node server is the default — it serves the
+You only need **one** backend. The Node server is the default: it serves the
 frontend *and* the API from a single port. The Flask app is an equivalent option if
 you prefer a Python stack (it does not serve the frontend; you host that separately).
 
 ---
 
-## Quick Start (Node.js — recommended)
+## Quick Start (Node.js, recommended)
 
 **Requirements:** Node.js 14+.
 
@@ -38,7 +40,7 @@ npm install
 npm start            # or: npm run dev   (auto-reload via nodemon)
 
 # 3. Open the kiosk
-#    → http://localhost:3000
+#    http://localhost:3000
 ```
 
 The server creates a `data/` directory on first run and writes all results there.
@@ -60,10 +62,10 @@ and point the frontend's API base URL at `http://localhost:5000`.
 
 | Phase | Description | Feedback | Counterbalanced |
 |-------|-------------|----------|-----------------|
-| **Demo** | Practice round using animal images (cats vs. dogs) to learn the controls | — | No |
-| **Phase I** | Baseline assessment — real vs. AI face pairs | No | Yes (Set A / B) |
-| **Phase II** | Training round — same task, with correct/incorrect feedback | Yes | No |
-| **Phase III** | Final assessment — a fresh image set | No | Yes (Set A / B) |
+| **Demo** | Practice round using animal images (cats vs. dogs) to learn the controls | n/a | No |
+| **Phase I** | Baseline assessment using real vs. AI face pairs | No | Yes (Set A / B) |
+| **Phase II** | Training round with correct/incorrect feedback | Yes | No |
+| **Phase III** | Final assessment with a fresh image set | No | Yes (Set A / B) |
 
 **Counterbalancing:** sessions alternate between set order **A** and **B**
 automatically (tracked in `data/session_counter.json`) so that image-set effects are
@@ -73,18 +75,18 @@ balanced across participants.
 
 Images live under [`frontend/assets/`](frontend/assets/):
 
-- `faces/` — primary real/AI face pairs (Set A)
-- `SetB/` — alternate face set (Set B)
-- `Training/` — images used in the Phase II training round
-- `animals/` — cat/dog images for the demo
+- `faces/`: primary real/AI face pairs (Set A)
+- `SetB/`: alternate face set (Set B)
+- `Training/`: images used in the Phase II training round
+- `animals/`: cat/dog images for the demo
 
 ---
 
 ## Controls
 
-- **Buttons / touch** — tap the left or right image, then confirm.
-- **Hand gestures (webcam)** — move a raised hand left/right to select a side, then
-  a **thumbs‑up** to confirm. Tunable thresholds (cooldown, position, raise height)
+- **Buttons / touch**: tap the left or right image, then confirm.
+- **Hand gestures (webcam)**: move a raised hand left/right to select a side, then
+  a **thumbs-up** to confirm. Tunable thresholds (cooldown, position, raise height)
   live in [`frontend/js/webcam.js`](frontend/js/webcam.js). If no webcam is available
   the kiosk silently falls back to button control.
 
@@ -100,11 +102,11 @@ Results are written as CSV to the `data/` directory (created automatically):
 | `phase2_results.csv` | Phase II training trials |
 | `phase3_results.csv` | Phase III trials (includes `set_order`) |
 | `demo_results.csv` | Demo trials |
-| `summary_results.csv` | Per‑participant improvement summary (Phase I → III) |
+| `summary_results.csv` | Per-participant improvement summary (Phase I to III) |
 | `undo_events.csv` | One row per time a participant reversed a choice before confirming |
 | `participants/<id>.csv` | All phases for a single participant in one file |
 
-The Node server is resilient to a CSV being open in Excel/locked by OneDrive: rows
+The Node server is resilient to a CSV being open in Excel or locked by OneDrive: rows
 that can't be written are queued to a `.pending` sidecar and flushed back
 automatically once the file is writable.
 
@@ -114,13 +116,13 @@ Both backends expose the same core API:
 
 | Method | Endpoint | Purpose |
 |--------|----------|---------|
-| `POST` | `/api/start-session` | Start a session, get a user ID + set order |
+| `POST` | `/api/start-session` | Start a session, get a user ID and set order |
 | `POST` | `/api/save-trial` | Save one trial |
 | `POST` | `/api/save-undo` | Log a reversed selection *(Node only)* |
-| `POST` | `/api/save-summary` | Save the Phase I→III improvement summary *(Node only)* |
-| `POST` | `/api/save-session` | Batch‑save a session |
+| `POST` | `/api/save-summary` | Save the Phase I to III improvement summary *(Node only)* |
+| `POST` | `/api/save-session` | Batch-save a session |
 | `GET`  | `/api/stats` | Trial counts per phase |
-| `GET`  | `/api/download/:mode` | Download a CSV (`phase1`, `phase3`, `summary`, `undo`, …) |
+| `GET`  | `/api/download/:mode` | Download a CSV (`phase1`, `phase3`, `summary`, `undo`, and so on) |
 | `GET`  | `/api/health` | Health check |
 
 ---
@@ -150,5 +152,11 @@ ai-kiosk/
 npm run dev    # Node server with auto-reload (nodemon)
 ```
 
-Collected participant data under `data/` is git‑ignored by default — keep research
+Collected participant data under `data/` is git-ignored by default. Keep research
 data out of version control and back it up separately.
+
+---
+
+## License
+
+Released under the [MIT License](LICENSE).
